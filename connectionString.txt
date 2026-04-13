@@ -1,0 +1,1 @@
+Server=db,1433;Database=PlejecenterDb;User Id=sa;Password=Dev_Password123;TrustServerCertificate=True;
