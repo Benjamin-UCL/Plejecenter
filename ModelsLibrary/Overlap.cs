@@ -8,37 +8,16 @@ namespace ModelsLibrary;
 
 public class Overlap
 {
-    public int Id { get; private set; }
+    public int Id { get; set; }
 
-    public DateTime date { get; private set; }
+    public DateTime date { get; set; }
 
-    public ShiftType ShiftType { get; private set; }
+    public ShiftType ShiftType { get; set; }
 
-    public Department department { get; private set; }
+    public Department department { get; set; }
 
-    public List<User> Personel {  get; private set; }
+    public List<User> Personel {  get; set; }
 
     // Constructors and overloads
-    public Overlap(Department department) : this(department, new List<User>())
-    {
-    }
-
-    public Overlap(Department department, List<User> personel)
-    {
-        this.date = DateTime.Today;
-        this.department = department;
-        this.Personel = personel;
-    }
-
-    public void addPersonel(User user)
-    {
-        this.Personel.Add(user);
-    }
-
-    public void removePersonel(User user) 
-    {
-        this.Personel.Remove(user);
-    }
-
-
+    public Overlap() {}
 }

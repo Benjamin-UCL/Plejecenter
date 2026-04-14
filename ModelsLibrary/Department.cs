@@ -8,13 +8,11 @@ namespace ModelsLibrary;
 
 public class Department
 {
-    public int Id { get; private set; }
+    public int Id { get; set; }
 
-    public string Title { get; private set; }
+    public string Title { get; set; }
 
-    public Department(int id, string Title) 
-    { 
-        this.Id = id;
-        this.Title = Title;        
+    public Department() 
+    {       
     }
 }
