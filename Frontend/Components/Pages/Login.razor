@@ -1,0 +1,41 @@
+﻿@page "/login"
+@attribute [AllowAnonymous]
+@inject HttpClient Http
+@inject JwtAuthStateProvider AuthProvider
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+<input @bind="alias" placeholder="Alias" />
+<input @bind="password" type="password" placeholder="Password" />
+<button @onclick="DoLogin">Login</button>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p style="color:red">@error</p>
+}
+
+@code {
+    private string alias = "";
+    private string password = "";
+    private string error = "";
+
+    private async Task DoLogin()
+    {
+        var response = await Http.PostAsJsonAsync("api/auth/login",
+            new { Alias = alias, Password = password });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            error = "Invalid alias or password";
+            return;
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
+        await AuthProvider.Login(result!.Token);
+        Nav.NavigateTo("/");
+    }
+
+    private record TokenResponse(string Token);
+}

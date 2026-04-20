@@ -1,0 +1,16 @@
+﻿@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthProvider
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated != true)
+            {
+                Nav.NavigateTo("/login", forceLoad: false);
+            }
+        }
+    }
+}
