@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ModelsLibrary;
-
-public enum ShiftType
+public class Medication
 {
-    morning,
-    evening,
-    night
+    public int Id { get; set; }
+    public string PrepName { get; set; }
 }

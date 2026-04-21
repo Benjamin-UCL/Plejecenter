@@ -6,14 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ModelsLibrary;
-
-public class User
+public class Responsibility
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Password { get; set; }
-    public string Alias { get; set; }
-    public UserRole UserRole { get; set; }
-
-    public User(){}
+    public string Title { get; set; }
+    public Overlap Overlap { get; set; }
+    public User User { get; set; }
 }

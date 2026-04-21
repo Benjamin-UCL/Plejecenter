@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace ModelsLibrary;
 
-public class Department
+public class MedicationDosage
 {
     public int Id { get; set; }
-
-    public string Title { get; set; }
-    public List<Reminder> Reminders { get; set; } = new List<Reminder>();
-    public Department() 
-    {       
-    }
+    public string Dosage { get; set; }
+    public Medication Medication { get; set; }
 }

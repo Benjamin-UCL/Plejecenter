@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace ModelsLibrary;
 
-public class Department
+public class ShiftTask
 {
     public int Id { get; set; }
-
-    public string Title { get; set; }
-    public List<Reminder> Reminders { get; set; } = new List<Reminder>();
-    public Department() 
-    {       
-    }
+    public string Description { get; set; }
+    public bool Done { get; set; }
+    public Overlap Overlap { get; set; }
 }
+    
