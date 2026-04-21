@@ -8,8 +8,8 @@ namespace ModelsLibrary;
 
 public class PhoneAssignment
 {
-	public int Id { get; set; }
-	public int PhoneNumber { get; set; }
-	public Overlap Overlap { get; set; }
-	public User User { get; set; }
+    public int Id { get; set; }
+    public int PhoneNumber { get; set; }
+    public Overlap Overlap { get; set; }
+    public User User { get; set; }
 }
