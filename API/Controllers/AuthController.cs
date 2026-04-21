@@ -26,9 +26,9 @@ public class AuthController : ControllerBase
     public IActionResult Login([FromBody] LoginRequest request)
     {
         var user = _db.Users.FirstOrDefault(u =>
-            u.Alias == request.Alias && u.Password == request.Password);
+            u.Alias == request.Alias);
 
-        if (user is null)
+        if (user == null ||  !BCrypt.Net.BCrypt.Verify(request.Password, user.Password)) 
             return Unauthorized("Invalid credentials");
 
         var token = GenerateToken(user);

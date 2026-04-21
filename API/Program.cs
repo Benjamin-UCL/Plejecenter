@@ -66,7 +66,7 @@ while (retries > 0)
         }
         if (!db.Users.Any())
         {
-            db.Users.Add(new User { Name = "Test", Alias = "testalias", Password = "testpassword" });
+            db.Users.Add(new User { Name = "Test", Alias = "testalias", Password = BCrypt.Net.BCrypt.HashPassword("testpassword") });
             db.SaveChanges();
         }
         break;

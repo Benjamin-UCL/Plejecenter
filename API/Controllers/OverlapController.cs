@@ -22,7 +22,7 @@ public class OverlapController : Controller
         return Ok(_db.Overlaps.ToList());
     }
 
-    [HttpGet("{id")] // Get by id
+    [HttpGet("{id}")] // Get by id
     public async Task<IActionResult> GetById(int id)
     {
         var overlap = await _db.Overlaps.FindAsync(id);

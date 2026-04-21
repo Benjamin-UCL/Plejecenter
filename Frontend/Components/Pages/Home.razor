@@ -1,7 +1,29 @@
 ﻿@page "/"
-
+@inject HttpClient Http
 <PageTitle>Home</PageTitle>
-
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+@if (departments == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var d in departments)
+        {
+            <li>@d.Title</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Department>? departments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        departments = await Http.GetFromJsonAsync<List<Department>>("api/department");
+    }
+
+    private record Department(string Title);
+}
