@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="PhoneAssignment.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="PhoneAssignment.cs" />
+  </ItemGroup>
+
 </Project>
