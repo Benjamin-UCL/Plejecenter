@@ -1,6 +1,8 @@
 ﻿using API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ModelsLibrary;
 
 namespace API.Controllers;
 
@@ -15,10 +17,77 @@ public class DepartmentController : ControllerBase
         _db = db;
     }
 
-    [HttpGet]
-    public IActionResult GetAll()
+    [HttpGet] // Get all
+    public async Task<ActionResult<IEnumerable<Department>>> GetAll()
     {
-        return Ok(_db.Departments.ToList());
+        return await _db.Departments.ToListAsync();
+    }
+
+    [HttpGet("{id}")] // Get by id
+    public async Task<ActionResult<Department>> GetById(int id)
+    {
+        var department = await _db.Departments.FindAsync(id);
+       
+        if (department == null) 
+            return NotFound();
+
+        return Ok(department);
+    }
+
+    [HttpPut("{id}")] // Update
+    public async Task<IActionResult> Update(int id, Department department)
+    {
+        if (id != department.Id)
+            return BadRequest();
+
+        _db.Entry(department).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if(!DepartmentExcists(id))
+            { 
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        
+        return NoContent();
+    }
+
+    [HttpPost] // Create
+    public async Task<ActionResult<Department>> Create(Department department)
+    {
+        _db.Departments.Add(department);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction("GetById", new { id = department.Id }, department);
+    }
+
+    [HttpDelete("{id}")] // Delete
+    public async Task<IActionResult> Delete(int id)
+    {
+        var department = await _db.Departments.FindAsync(id);
+        if (department == null)
+        {
+            return NotFound();
+        }
+
+        _db.Departments.Remove(department);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool DepartmentExcists(int id)
+    {
+        return _db.Departments.Any(x => x.Id == id);
     }
 
 }

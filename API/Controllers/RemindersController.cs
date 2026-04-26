@@ -1,35 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using API.Data;
 using ModelsLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Controllers;
 
-[Route("api/[controller]")]
+[Authorize]
 [ApiController]
+[Route("api/[controller]")]
 public class RemindersController : ControllerBase
 {
     private readonly AppDbContext _db;
 
-    public RemindersController(AppDbContext context)
+    public RemindersController(AppDbContext db)
     {
-        _db = context;
+        _db = db;
     }
 
-    // GET: api/Reminders
-    [HttpGet]
+    [HttpGet] // Get All
     public async Task<ActionResult<IEnumerable<Reminder>>> GetAll()
     {
         return await _db.Reminders.ToListAsync();
     }
 
-    // GET: api/Reminders/5
-    [HttpGet("{id}")]
+    [HttpGet("{id}")] // Get by id
     public async Task<ActionResult<Reminder>> GetById(int id)
     {
         var reminder = await _db.Reminders.FindAsync(id);
@@ -41,7 +41,7 @@ public class RemindersController : ControllerBase
         return reminder;
     }
 
-    [HttpGet("department/{departmentId}")]
+    [HttpGet("department/{departmentId}")] // Get by Department
     public async Task<IActionResult> GetByDepartment(int departmentId)
     {
         var reminders = await _db.Reminders
@@ -51,8 +51,7 @@ public class RemindersController : ControllerBase
         return Ok(reminders);
     }
 
-    // PUT: api/Reminders/5
-    [HttpPut("{id}")]
+    [HttpPut("{id}")] // Update
     public async Task<IActionResult> Update(int id, Reminder reminder)
     {
         if (id != reminder.Id) return BadRequest();            
@@ -78,9 +77,7 @@ public class RemindersController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/Reminders
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
+    [HttpPost] // Create
     public async Task<ActionResult<Reminder>> Create(Reminder reminder)
     {
         _db.Reminders.Add(reminder);
@@ -89,8 +86,7 @@ public class RemindersController : ControllerBase
         return CreatedAtAction("GetById", new { id = reminder.Id }, reminder);
     }
 
-    // DELETE: api/Reminders/5
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}")] // Delete
     public async Task<IActionResult> Delete(int id)
     {
         var reminder = await _db.Reminders.FindAsync(id);

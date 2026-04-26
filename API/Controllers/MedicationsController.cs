@@ -1,108 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using API.Data;
 using ModelsLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class MedicationsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MedicationsController : ControllerBase
+    private readonly AppDbContext _db;
+
+    public MedicationsController(AppDbContext db)
     {
-        private readonly AppDbContext _context;
+        _db = db;
+    }
 
-        public MedicationsController(AppDbContext context)
+    [HttpGet] // Get All
+    public async Task<ActionResult<IEnumerable<Medication>>> GetAll()
+    {
+        return await _db.Medications.ToListAsync();
+    }
+
+    [HttpGet("{id}")] // Get by Id
+    public async Task<ActionResult<Medication>> GetById(int id)
+    {
+        var medication = await _db.Medications.FindAsync(id);
+
+        if (medication == null)
         {
-            _context = context;
+            return NotFound();
         }
 
-        // GET: api/Medications
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Medication>>> GetAll()
+        return medication;
+    }
+
+    [HttpPut("{id}")] // Update
+    public async Task<IActionResult> Update(int id, Medication medication)
+    {
+        if (id != medication.Id)
         {
-            return await _context.Medications.ToListAsync();
+            return BadRequest();
         }
 
-        // GET: api/Medications/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Medication>> GetById(int id)
-        {
-            var medication = await _context.Medications.FindAsync(id);
+        _db.Entry(medication).State = EntityState.Modified;
 
-            if (medication == null)
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!MedicationExists(id))
             {
                 return NotFound();
             }
-
-            return medication;
-        }
-
-        // PUT: api/Medications/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Medication medication)
-        {
-            if (id != medication.Id)
+            else
             {
-                return BadRequest();
+                throw;
             }
-
-            _context.Entry(medication).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MedicationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
-        // POST: api/Medications
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Medication>> Create(Medication medication)
+        return NoContent();
+    }
+
+    [HttpPost] // Create
+    public async Task<ActionResult<Medication>> Create(Medication medication)
+    {
+        _db.Medications.Add(medication);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction("GetById", new { id = medication.Id }, medication);
+    }
+
+    [HttpDelete("{id}")] // Delete
+    public async Task<IActionResult> Delete(int id)
+    {
+        var medication = await _db.Medications.FindAsync(id);
+        if (medication == null)
         {
-            _context.Medications.Add(medication);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetById", new { id = medication.Id }, medication);
+            return NotFound();
         }
 
-        // DELETE: api/Medications/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var medication = await _context.Medications.FindAsync(id);
-            if (medication == null)
-            {
-                return NotFound();
-            }
+        _db.Medications.Remove(medication);
+        await _db.SaveChangesAsync();
 
-            _context.Medications.Remove(medication);
-            await _context.SaveChangesAsync();
+        return NoContent();
+    }
 
-            return NoContent();
-        }
-
-        private bool MedicationExists(int id)
-        {
-            return _context.Medications.Any(e => e.Id == id);
-        }
+    private bool MedicationExists(int id)
+    {
+        return _db.Medications.Any(e => e.Id == id);
     }
 }

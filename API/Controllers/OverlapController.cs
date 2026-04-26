@@ -1,4 +1,5 @@
 ﻿using API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ModelsLibrary;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class OverlapController : Controller
@@ -32,7 +34,6 @@ public class OverlapController : Controller
         }
         return Ok(overlap);
     }
-
 
     [HttpPost] // Create
     public async Task<ActionResult<Overlap>> Create(Overlap overlap)
