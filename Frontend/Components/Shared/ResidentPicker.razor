@@ -1,0 +1,63 @@
+﻿@* ResidentPicker.razor *@
+@using ModelsLibrary.Enums
+
+<div class="resident-picker">
+
+    <p class="picker-label">Vælg Beboer</p>
+
+    <div class="picker-search-wrap">
+        <svg class="picker-search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input class="picker-search"
+               type="text"
+               placeholder="Søg beboer…"
+               @bind="searchQuery"
+               @bind:event="oninput"
+               @onkeydown="OnKeyDown"
+               aria-label="Søg efter beboer" />
+    </div>
+
+    <div class="picker-list" role="listbox" aria-label="Beboere">
+
+        @if (!FilteredResidents.Any())
+        {
+            <div class="picker-empty">Ingen beboere fundet</div>
+        }
+        else
+        {
+            @foreach (var (resident, index) in FilteredResidents.Select((r, i) => (r, i)))
+            {
+                var isSelected = resident == SelectedResident;
+                var isFocused = index == focusedIndex;
+
+                <div class="picker-row @(isSelected ? "selected" : "") @(isFocused ? "focused" : "")"
+                     role="option"
+                     aria-selected="@isSelected"
+                     @onclick="() => SelectResident(resident)">
+
+                    <div class="picker-avatar avatar-@GetStatusClass(resident.Status)">
+                        @GetInitials(resident.Name)
+                    </div>
+
+                    <div class="picker-row-info">
+                        <span class="picker-row-name">@resident.Name</span>
+                        <span class="picker-row-status status-@GetStatusClass(resident.Status)">
+                            @GetStatusLabel(resident.Status)
+                        </span>
+                    </div>
+
+                    <div class="picker-dot dot-@GetStatusClass(resident.Status)"></div>
+
+                </div>
+            }
+        }
+
+    </div>
+
+</div>
+
+

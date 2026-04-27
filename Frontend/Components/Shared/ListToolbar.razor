@@ -1,0 +1,28 @@
+@namespace Frontend.Components.Shared
+
+@* ============================================================
+   KOMPONENT: ListToolbar
+   FORMÅL: Standard toolbar/header med titel til venstre og actions til højre.
+
+   Brug:
+   <ListToolbar Title="...">
+     ... søg, knapper osv ...
+   </ListToolbar>
+   ============================================================ *@
+
+<div class="toolbar">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="toolbar-title">@Title</div>
+    }
+
+    <div class="toolbar-right">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; } 
+}
+

@@ -1,0 +1,250 @@
+﻿/* ── Empty state ────────────────────────────────────────── */
+.detail-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--secondery-text);
+    font-size: 14px;
+    border: 1px dashed var(--borders);
+    border-radius: var(--mid-radius);
+}
+
+/* ── Card shell ─────────────────────────────────────────── */
+.detail-card {
+    background: var(--surface);
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    overflow: hidden;
+    flex: 1;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    gap: 12px;
+}
+
+    .detail-header h2 {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0;
+        color: var(--inverted-text);
+    }
+
+    .detail-header.status-kritisk {
+        background: var(--status-high);
+    }
+
+    .detail-header.status-ustabil {
+        background: var(--status-mid);
+    }
+
+    .detail-header.status-stabil {
+        background: var(--status-low);
+    }
+
+/* ── Status select ──────────────────────────────────────── */
+.kritisk-wrap {
+    border-radius: 6px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.kritisk-select {
+    font-size: 13px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: var(--inverted-text);
+}
+
+/* ── Body ───────────────────────────────────────────────── */
+.detail-body {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ── Section label ──────────────────────────────────────── */
+.section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--secondery-text);
+    margin-bottom: 8px;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid var(--borders);
+    margin: 0;
+}
+
+/* ── Pill grid ──────────────────────────────────────────── */
+.pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: var(--primery-text);
+    background: var(--canvas);
+    border: 1px solid var(--borders);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+}
+
+    .pill input[type="checkbox"] {
+        width: 13px;
+        height: 13px;
+        cursor: pointer;
+        accent-color: var(--status-low);
+    }
+
+    .pill:hover {
+        background: var(--borders);
+    }
+
+.pill-checked {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--status-low);
+    color: var(--status-low);
+}
+
+/* ── PN row ─────────────────────────────────────────────── */
+.pn-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.pn-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pn-time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 13px;
+    color: var(--secondery-text);
+    background: var(--canvas);
+    border: 1px solid var(--borders);
+    border-radius: 20px;
+}
+
+.icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--borders);
+    background: transparent;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
+    color: var(--primery-text);
+}
+
+    .icon-btn:hover {
+        background: var(--borders);
+    }
+
+    .icon-btn.green {
+        color: var(--status-low);
+        border-color: var(--status-low);
+    }
+
+/* ── Bottom grid ────────────────────────────────────────── */
+.bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.bottom-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .bottom-col label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--secondery-text);
+    }
+
+.select-wrap select {
+    width: 100%;
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    background: var(--canvas);
+    color: var(--primery-text);
+    outline: none;
+}
+
+/* ── Textareas ──────────────────────────────────────────── */
+.message-area {
+    width: 100%;
+    min-height: 72px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    background: var(--canvas);
+    color: var(--primery-text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+
+    .message-area:focus {
+        border-color: var(--primery-button);
+    }
+
+    .message-area.full-width {
+        min-height: 80px;
+    }
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+.detail-card::-webkit-scrollbar {
+    width: 4px;
+}
+
+.detail-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.detail-card::-webkit-scrollbar-thumb {
+    background: var(--borders);
+    border-radius: 2px;
+}

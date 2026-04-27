@@ -1,0 +1,15 @@
+/* ============================================================
+   KOMPONENT: EmployeeSelect.razor.css
+   FORMÅL: Ens styling af medarbejder-dropdown på tværs af sider.
+
+   ============================================================ */
+
+.select-wrap select {
+    width: 100%;
+    padding: 6px;
+    border-radius: var(--mid-radius);
+    border: 1px solid var(--borders);
+    background-color: var(--canvas);
+    color: var(--primery-text);
+    box-sizing: border-box;
+}

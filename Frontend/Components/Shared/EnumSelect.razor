@@ -1,0 +1,48 @@
+@namespace Frontend.Components.Shared
+@typeparam TEnum where TEnum : struct, System.Enum
+
+@* ============================================================
+   KOMPONENT: EnumSelect<TEnum>
+   FORMÅL: Standard dropdown til enums (roller, vagter, status osv.).
+   ============================================================ *@
+
+<div class="select-wrap">
+    <select class="@Class" value="@ValueString" @onchange="OnChanged" disabled="@Disabled">
+        @if (IncludeEmptyOption)
+        {
+            <option value="">@EmptyText</option>
+        }
+
+        @foreach (var opt in Options)
+        {
+            <option value="@opt.ToString()">@FormatOption(opt)</option>
+        }
+    </select>
+</div>
+
+@code {
+    [Parameter] public TEnum Value { get; set; }
+    [Parameter] public EventCallback<TEnum> ValueChanged { get; set; }
+
+    [Parameter] public IReadOnlyList<TEnum> Options { get; set; } = System.Enum.GetValues<TEnum>();
+    [Parameter] public Func<TEnum, string>? Format { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    [Parameter] public bool IncludeEmptyOption { get; set; }
+    [Parameter] public string EmptyText { get; set; } = "-- Vælg --";
+
+    private string ValueString => Value.ToString();
+
+    private string FormatOption(TEnum v) => Format?.Invoke(v) ?? v.ToString();
+
+    private async Task OnChanged(ChangeEventArgs e)
+    {
+        var raw = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(raw)) return;
+        if (System.Enum.TryParse<TEnum>(raw, out var parsed))
+            await ValueChanged.InvokeAsync(parsed);
+    }
+}
+

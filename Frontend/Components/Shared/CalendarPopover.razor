@@ -1,0 +1,61 @@
+@namespace Frontend.Components.Shared
+
+@* ============================================================
+   KOMPONENT: CalendarPopover
+   FORMÅL: Lille kalender-popover (måned-view) til valg af dato.
+
+   Brug:
+   - Parent styrer IsOpen + IsOpenChanged.
+   - Value + ValueChanged bruges til at vælge en dato.
+   ============================================================ *@
+
+@if (IsOpen)
+{
+    <div class="cal-backdrop" @onclick="Close"></div>
+
+    <div class="cal-popover" role="dialog" aria-modal="true" aria-label="Vælg dato" @onclick:stopPropagation="true">
+        <div class="cal-header">
+            <button class="cal-nav" type="button" @onclick="PrevMonth" aria-label="Forrige måned">
+                <span class="bi bi-chevron-left" aria-hidden="true"></span>
+            </button>
+
+            <div class="cal-title">
+                @monthLabel
+            </div>
+
+            <button class="cal-nav" type="button" @onclick="NextMonth" aria-label="Næste måned">
+                <span class="bi bi-chevron-right" aria-hidden="true"></span>
+            </button>
+        </div>
+
+        <div class="cal-weekdays">
+            @foreach (var wd in WeekdayLabels)
+            {
+                <div class="cal-wd">@wd</div>
+            }
+        </div>
+
+        <div class="cal-grid">
+            @foreach (var cell in Cells)
+            {
+                if (cell.IsEmpty)
+                {
+                    <div class="cal-cell cal-empty"></div>
+                }
+                else
+                {
+                    <button class="cal-cell cal-day @(cell.IsToday ? "today" : "") @(cell.IsSelected ? "selected" : "")"
+                            type="button"
+                            @onclick="() => Select(cell.Date!.Value)">
+                        @cell.Date!.Value.Day
+                    </button>
+                }
+            }
+        </div>
+
+        <div class="cal-footer">
+            <button class="cal-today" type="button" @onclick="GoToToday">I dag</button>
+        </div>
+    </div>
+}
+

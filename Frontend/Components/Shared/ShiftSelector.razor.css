@@ -1,0 +1,43 @@
+.vagt-selector-wrapper {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    margin: 20px 0 30px 0;
+}
+
+.vagt-selector-group {
+    display: flex;
+    border-radius: var(--mid-radius);
+    overflow: hidden;
+    border: 1px solid var(--borders);
+    background-color: var(--surface);
+}
+
+.vagt-btn {
+    background-color: transparent;
+    color: var(--primery-text);
+    border: none;
+    border-right: 1px solid var(--borders);
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 180px;
+}
+
+.vagt-btn:last-child {
+    border-right: none;
+}
+
+.vagt-btn:hover:not(.active) {
+    background-color: var(--secondery-button);
+}
+
+.vagt-btn.active {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    font-weight: bold;
+}
+

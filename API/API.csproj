@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModelsLibrary\ModelsLibrary.csproj" />
+    <ProjectReference Include="..\Plejecenter.Shared\Plejecenter.Shared.csproj" />
   </ItemGroup>
 
 </Project>

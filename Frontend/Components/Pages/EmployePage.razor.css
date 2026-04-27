@@ -1,0 +1,311 @@
+/* ============================================================
+   SIDE: EmployePage.razor.css
+   FORMÅL: Styling til medarbejder-admin siden.
+
+   Sektioner:
+   - Toolbar (ListToolbar): søg + knap
+   - Add/Edit panel: formular
+   - Tabel: liste
+   - Knapper: add/edit/delete/cancel
+   ============================================================ */
+
+/* Toolbar (ListToolbar) */
+
+.employee-search {
+    padding: 8px;
+    border: 1px solid var(--borders);
+    background-color: var(--surface);
+    color: var(--primery-text);
+    border-radius: var(--mid-radius);
+    height: 40px;
+    max-width: 250px;
+    width: 100%;
+}
+
+/* Bekræftelsesdialog: styles ligger i `Components/Partials/ConfirmDialog.razor.css` */
+/* Tilføj Ny Medarbejder Sektion – samme radius som Responsibility-liste */
+.add-worker-section {
+    margin-bottom: 30px;
+   
+}
+
+.add-worker-section ::deep .validation-summary {
+    margin: 0;
+    padding: 12px 15px 0;
+    color: var(--status-high);
+    font-size: 0.95em;
+}
+
+
+.add-worker-card {
+    display: block;
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    background-color: var(--surface);
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row {
+    border: none;
+    background-color: var(--surface);
+    padding: 0;
+    border-radius: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 0;
+}
+
+.form-group {
+    flex: 1 1 120px; /* Flex grow, shrink, and basis */
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Space between input and validation message */
+    min-width: 120px;
+}
+
+/* Password 6 cifre */
+.form-group-password {
+    flex: 0 0 110px;
+    max-width: 110px;
+    min-width: 110px;
+}
+
+/* Role dropdowne */
+.form-group-role {
+    flex: 0 0 140px;
+    max-width: 140px;
+}
+
+
+.form-group > ::deep input,
+.form-group > ::deep select {
+    width: 100%;
+    height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--borders);
+    border-radius: 4px;
+    background-color: var(--canvas);
+    color: var(--primery-text);
+    box-sizing: border-box;
+}
+
+
+.form-group ::deep .select-wrap {
+    width: 100%;
+}
+
+.form-group ::deep .select-wrap select {
+    width: 100%;
+    height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--borders);
+    border-radius: 4px;
+    background-color: var(--canvas);
+    color: var(--primery-text);
+    box-sizing: border-box;
+}
+
+/* Style for validation messages */
+.form-group ::deep .validation-message {
+    color: var(--status-high);
+    font-size: 0.8em;
+    display: block;
+    min-height: 1.1em;
+    line-height: 1.1em;
+}
+
+/* Style for invalid fields */
+.form-group ::deep .invalid {
+    border-color: var(--status-high);
+}
+
+.form-group-actions {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+    margin-top: 0;
+}
+
+.btn-add {
+    flex-shrink: 0;
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    height: 40px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.btn-cancel {
+    background-color: var(--secondery-button);
+    color: var(--primery-text);
+    border: none;
+    height: 40px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background-color: var(--status-high);
+    color: var(--inverted-text);
+    border: none;
+    height: 40px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+.btn-add-list {
+    padding: 8px 16px;
+    max-width: 220px;
+}
+
+/* Tabel styling */
+
+.table-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    background-color: var(--surface);
+}
+
+.worker-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    color: var(--primery-text);
+}
+
+.worker-table th, .worker-table td {
+    border-bottom: 1px solid var(--borders); /* Only bottom border */
+    padding: 12px 14px; /* Adjusted padding */
+    text-align: left;
+    vertical-align: middle;
+}
+
+.worker-table tr:last-child td {
+    border-bottom: none; /* Remove border for the last row */
+}
+
+.worker-table th {
+    background-color: var(--secondery-button); /* Header background */
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.select-wrap select {
+    width: 100%;
+    padding: 6px;
+    border-radius: var(--mid-radius);
+    border: 1px solid var(--borders);
+    background-color: var(--canvas);
+    color: var(--primery-text);
+}
+
+/* Rolle-kolonne */
+.col-role,
+.col-role-cell {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+}
+
+/* Handlinger knapper i tabellen*/
+
+.col-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+.btn-edit {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-delete {
+    background-color: var(--status-high);
+    color: var(--inverted-text);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Switch styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--borders);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 5px;
+    bottom: 3px;
+    background-color: var(--inverted-text);
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primery-button);
+}
+
+input:checked + .slider:before {
+    transform: translateX(34px);
+}
+
+.col-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.text-center {
+    text-align: center !important;
+}

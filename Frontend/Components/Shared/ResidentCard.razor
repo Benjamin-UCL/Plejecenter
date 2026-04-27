@@ -1,0 +1,26 @@
+﻿<!-- Card 1 -->
+<div class="resident-card">
+    <div class="resident-header">
+        <div class="resident-name">@FullName (@Initials)</div>
+        <button class="btn-edit">Rediger</button>
+        <button class="btn-delete">Slet</button>
+    </div>
+    <div class="resident-body">
+        <div class="med-label">Medicin Tider</div>
+        
+        @foreach (var time in MedicationTimes)
+        {
+            <div class="med-time-row">
+                <span class="time">@time</span>
+                <span class="delete-time">&#10005;</span>
+            </div>        
+        }
+        
+        <div class="add-time-row">
+            <input type="time" />
+            <button class="btn-add-time">Tilføj</button>
+        </div>
+    </div>
+</div>
+
+

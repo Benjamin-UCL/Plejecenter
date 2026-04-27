@@ -1,0 +1,52 @@
+﻿@using Services
+@inject AuthService AuthService
+@inject ModalService ModalService
+
+<SL_InputField Label="@Name" Value="@newValue" OnChanged="OnChanged" name="@Name" style="background-color=red" />
+
+<!-- SL_Input.razor - Et input felt der kræver godkendelse ved ændring. -->
+@code {
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Value { get; set; }
+
+    private string currentValue;
+    private string newValue;
+
+    protected override void OnParametersSet()
+    {
+        currentValue = Value;
+        newValue = Value;
+    }
+
+    private void OnChanged()
+    {
+        // brugeren har skrevet noget og trykket enter eller flyttet ud af feltet. 
+        // Nedeståender er hvad der skal ske efter
+        // Valider dataen
+
+        // Prompt brugerens adgangskode - Via PW-Modal
+        Console.WriteLine("Marco");
+        ModalService.Show(EventCallback.Factory.Create<bool>(this, HandleAuthResult));
+
+        // Tjek adgangskoden imod vagt personale
+        // Midlertidig prototype implamentation
+        // if (AuthService.Verify(1, "1234"))
+        // {
+        //     Opdater data via API
+
+        //     når API retunerer OK, skal datane opdateres lokalt
+        //     currentValue = newValue = "Boom shakalak!";
+        //     return;
+        // }
+        // newValue = currentValue;
+    }
+
+    private void HandleAuthResult(bool succes)
+    {
+        Console.WriteLine("SL_Input - Handel result");
+        if (succes) currentValue = newValue = "Boom shakalak!";
+        else newValue = currentValue;
+        ModalService.Close();
+    }
+
+}
