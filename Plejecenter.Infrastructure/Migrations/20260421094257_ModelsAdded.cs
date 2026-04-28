@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Plejecenter.Api.Migrations
+namespace Plejecenter.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class ModelsAdded : Migration

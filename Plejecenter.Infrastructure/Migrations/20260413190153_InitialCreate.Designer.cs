@@ -9,11 +9,11 @@ using Plejecenter.Infrastructure.Data;
 
 #nullable disable
 
-namespace Plejecenter.Api.Migrations
+namespace Plejecenter.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260421092239_YourMigrationName")]
-    partial class YourMigrationName
+    [Migration("20260413190153_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,21 +24,6 @@ namespace Plejecenter.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("DepartmentReminder", b =>
-                {
-                    b.Property<int>("DepartmentsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RemindersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DepartmentsId", "RemindersId");
-
-                    b.HasIndex("RemindersId");
-
-                    b.ToTable("DepartmentReminder");
-                });
 
             modelBuilder.Entity("Plejecenter.Domain.Department", b =>
                 {
@@ -81,23 +66,6 @@ namespace Plejecenter.Api.Migrations
                     b.ToTable("Overlaps");
                 });
 
-            modelBuilder.Entity("Plejecenter.Domain.Reminder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Reminder");
-                });
-
             modelBuilder.Entity("Plejecenter.Domain.User", b =>
                 {
                     b.Property<int>("Id")
@@ -121,29 +89,11 @@ namespace Plejecenter.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserRole")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OverlapId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DepartmentReminder", b =>
-                {
-                    b.HasOne("Plejecenter.Domain.Department", null)
-                        .WithMany()
-                        .HasForeignKey("DepartmentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Plejecenter.Domain.Reminder", null)
-                        .WithMany()
-                        .HasForeignKey("RemindersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Plejecenter.Domain.Overlap", b =>
