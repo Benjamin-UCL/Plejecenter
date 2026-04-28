@@ -1,9 +1,8 @@
-using System;
 using Plejecenter.Shared.DTOs.EmployePage;
 
 namespace Plejecenter.Application.Services.Employees;
 
-public interface IEmployeeService
+public interface IEmployeeRepository
 {
     Task<List<EmployeePageDTO.EmployeeDto>> GetAllAsync(string? search);
     Task<EmployeePageDTO.EmployeeDto?> GetByIdAsync(int id);
@@ -12,3 +11,4 @@ public interface IEmployeeService
     Task<bool> SetActiveAsync(int id, EmployeePageDTO.SetEmployeeActiveRequest req);
     Task<bool> DeleteAsync(int id);
 }
+

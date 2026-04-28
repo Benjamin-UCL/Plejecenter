@@ -7,8 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.25" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Plejecenter.Domain\Plejecenter.Domain.csproj" />
+    <ProjectReference Include="..\Plejecenter.Application\Plejecenter.Application.csproj" />
     <ProjectReference Include="..\Plejecenter.Shared\Plejecenter.Shared.csproj" />
   </ItemGroup>
 
 </Project>
+
