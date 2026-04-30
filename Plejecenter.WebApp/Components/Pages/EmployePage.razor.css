@@ -9,9 +9,13 @@
    - Knapper: add/edit/delete/cancel
    ============================================================ */
 
-/* Toolbar (ListToolbar) */
+/* Toolbar (ListToolbar)
+   Note: content is rendered inside `ListToolbar`, so we use a slightly more specific selector
+   and `::deep` to ensure styling applies across component boundaries. */
 
-.employee-search {
+.toolbar-right .employee-search,
+::deep .toolbar-right .employee-search,
+::deep .employee-search {
     padding: 8px;
     border: 1px solid var(--borders);
     background-color: var(--surface);
@@ -167,7 +171,9 @@
 }
 
 
-.btn-add-list {
+.toolbar-right .btn-add-list,
+::deep .toolbar-right .btn-add-list,
+::deep .btn-add-list {
     padding: 8px 16px;
     max-width: 220px;
 }

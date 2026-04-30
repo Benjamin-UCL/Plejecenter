@@ -1,0 +1,46 @@
+﻿<header>
+
+    @* left section  *@
+    <div>App</div>
+
+    @* right section *@
+    <div>
+        <label class="switch">
+            <input type="checkbox" @bind="_isLight" @bind:event="onchange" />
+            <span class="slider"></span>
+        </label>
+    </div>
+</header>
+
+@inject IJSRuntime JS
+
+@code {
+    private bool _isLight = false;
+
+    private async Task ApplyThemeAsync()
+        => await JS.InvokeVoidAsync("setTheme", _isLight ? "light" : "dark");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var theme = await JS.InvokeAsync<string>("getTheme");
+                _isLight = string.Equals(theme, "light", StringComparison.OrdinalIgnoreCase);
+                await ApplyThemeAsync();
+                StateHasChanged();
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+        else
+        {
+            // Subsequent renders can be caused by toggling _isLight via @bind.
+            try { await ApplyThemeAsync(); } catch { }
+        }
+    }
+}
+
