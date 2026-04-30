@@ -10,7 +10,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: API/Dockerfile
+      dockerfile: Plejecenter.Api/Dockerfile
     ports:
       - "5000:8080"
     depends_on:
@@ -19,7 +19,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Frontend/Dockerfile
+      dockerfile: Plejecenter.WebApp/Dockerfile
     ports:
       - "5001:8080"
     depends_on:

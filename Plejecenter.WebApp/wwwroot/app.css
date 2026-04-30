@@ -1,0 +1,62 @@
+:root {
+    /*--color-bg-dark: #1a1a2e;
+    --color-bg-mid: #16213e;
+    --color-bg-light: #26314e;
+    --color-accent: #0f3460;
+    --color-highlight: #e94560;
+    --color-text-light: #f5f5f5;
+    --color-text-muted: #a8a8b3;*/
+    --mid-radius: 10px;
+    --large-radius: 20px;
+    --border: 7px solid var(--borders);
+    /*    new colors*/
+    --canvas: #0F172A;
+    --surface: #1E293B;
+    --top-bar: #0B1120;
+    --primery-text: #F8FAFC;
+    --secondery-text: #94A3B8;
+    --inverted-text: #F8FAFC;
+    --primery-button: #3B82F6;
+    --secondery-button: #334155;
+    --borders: #334155;
+    --status-high: #EF4444;
+    --status-mid: #F59E0B;
+    --status-low: #10B981;
+}
+
+[data-theme="light"] {
+    --canvas: #F3F6F9;
+    --surface: #FFFFFF;
+    --top-bar: #2B4C7E;
+    --primery-text: #1E293B;
+    --secondery-text: #64748B;
+    --inverted-text: #FFFFFF;
+    --primery-button: #2B4C7E;
+    --secondery-button: #E2E8F0;
+    --borders: #E2E8F0;
+    --status-high: #EF4444;
+    --status-mid: #F59E0B;
+    --status-low: #10B981;
+}
+
+body{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    background: var(--canvas);
+    color: var(--primery-text);
+    margin: 0;
+}
+
+/* Make Bootstrap defaults fit our theme */
+a, .btn-link {
+    color: var(--primery-text);
+}
+
+/* Layout helpers (MainLayout + common pages) */
+.content {
+    background: transparent;
+}
+
+main {
+    background: var(--canvas);
+}
+

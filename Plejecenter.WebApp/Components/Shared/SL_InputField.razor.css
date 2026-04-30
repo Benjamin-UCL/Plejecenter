@@ -1,0 +1,27 @@
+﻿label{
+    color: var(--secondery-text);
+    font-size: .75rem;
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+input {
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+    border: 1px solid var(--borders);
+    display: block !important;
+    border-radius: var(--mid-radius);
+    padding: 10px 20px;
+    font-weight: 500;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: var(--surface);
+    color: #fff;
+}
+
+    input:focus {
+        outline: 1px solid var(--status-mid);
+        background-color: var(--borders);
+        color: var(--primery-text);
+    }

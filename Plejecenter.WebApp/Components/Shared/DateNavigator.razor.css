@@ -1,0 +1,56 @@
+.date-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background-color: var(--surface);
+    padding: 10px 20px;
+    border-radius: var(--mid-radius);
+    border: 1px solid var(--borders);
+    width: fit-content;
+    margin: 20px auto;
+}
+
+.date-center {
+    position: relative; /* anchor til CalendarPopover (position: absolute) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-display {
+    min-width: 120px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--primery-text);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--mid-radius);
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.date-display:hover {
+    background-color: var(--secondery-button);
+}
+
+.btn-date-nav {
+    background-color: var(--secondery-button);
+    color: var(--primery-text);
+    border: 1px solid var(--borders);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-date-nav:hover {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border-color: var(--primery-button);
+}
+

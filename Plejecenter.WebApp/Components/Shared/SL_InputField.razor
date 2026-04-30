@@ -1,0 +1,13 @@
+﻿<label>@Label</label>
+<input @attributes="AdditionalAttributes" value="@Value" @onchange="OnChanged" />
+
+
+
+@code {
+    [Parameter] public string Label { get; set; }
+    [Parameter] public string Value { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; }
+}

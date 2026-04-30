@@ -1,0 +1,47 @@
+@namespace Plejecenter.WebApp.Components.Shared
+
+@* ============================================================
+   KOMPONENT: DateNavigator
+   FORMÅL: Forrige/næste dag + visning af dato.
+   ============================================================ *@
+
+<div class="date-navigation">
+    <button class="btn-date-nav" type="button" @onclick="Previous">
+        <span class="bi bi-chevron-left" aria-hidden="true"></span>
+    </button>
+
+    <div class="date-center">
+        <button class="date-display" type="button" title="Klik for at vælge dato" @onclick="ToggleCalendar">
+            @Date.ToString(Format)
+        </button>
+
+        <CalendarPopover IsOpen="isCalendarOpen"
+                         IsOpenChanged="@(v => isCalendarOpen = v)"
+                         Value="Date"
+                         ValueChanged="OnPicked" />
+    </div>
+
+    <button class="btn-date-nav" type="button" @onclick="Next">
+        <span class="bi bi-chevron-right" aria-hidden="true"></span>
+    </button>
+</div>
+
+@code {
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public EventCallback<DateTime> DateChanged { get; set; }
+    [Parameter] public string Format { get; set; } = "dd-MM-yyyy";
+
+    private bool isCalendarOpen;
+
+    private Task Previous() => DateChanged.InvokeAsync(Date.AddDays(-1));
+    private Task Next() => DateChanged.InvokeAsync(Date.AddDays(1));
+
+    private void ToggleCalendar() => isCalendarOpen = !isCalendarOpen;
+
+    private async Task OnPicked(DateTime next)
+    {
+        await DateChanged.InvokeAsync(next.Date);
+        isCalendarOpen = false;
+    }
+}
+

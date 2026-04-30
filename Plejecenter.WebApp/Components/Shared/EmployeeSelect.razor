@@ -1,0 +1,53 @@
+@namespace Plejecenter.WebApp.Components.Shared
+@using Plejecenter.Domain
+
+@* ============================================================
+   KOMPONENT: EmployeeSelect
+   FORMÅL: Ensartet dropdown til at vælge en medarbejder (User) på tværs af sider.
+   ============================================================ *@
+
+<div class="select-wrap">
+    <select class="@Class" value="@ValueString" @onchange="OnChanged" disabled="@Disabled">
+        @if (IncludeEmptyOption)
+        {
+            <option value="">@EmptyText</option>
+        }
+
+        @foreach (var emp in Employees)
+        {
+            <option value="@emp.Id">@FormatEmployee(emp)</option>
+        }
+    </select>
+</div>
+
+@code {
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+
+    [Parameter] public IReadOnlyList<User> Employees { get; set; } = Array.Empty<User>();
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    [Parameter] public bool IncludeEmptyOption { get; set; } = true;
+    [Parameter] public string EmptyText { get; set; } = "-- Vælg medarbejder --";
+    [Parameter] public bool ShowAlias { get; set; } = true;
+
+    private string ValueString => Value?.ToString() ?? "";
+
+    private string FormatEmployee(User u)
+        => ShowAlias ? $"{u.FirstName} {u.LastName} ({u.Alias})" : $"{u.FirstName} {u.LastName}";
+
+    private async Task OnChanged(ChangeEventArgs e)
+    {
+        var raw = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            await ValueChanged.InvokeAsync(null);
+            return;
+        }
+
+        if (int.TryParse(raw, out var id))
+            await ValueChanged.InvokeAsync(id);
+    }
+}
+
