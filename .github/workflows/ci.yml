@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  # PRs into dev/main should always be gated by CI
+  pull_request:
+    branches: [dev, main]
+
+  # Keep dev/main green even for direct pushes
+  # (main should normally be protected from direct pushes via branch protection)
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }} #Det angiver en gruppe for samtidige job, baseret på den gren, der udløser workflowet. Dette betyder, at alle job, der kører for den samme gren (f.eks. dev eller main), vil blive grupperet sammen.
+  cancel-in-progress: true #Det angiver, at hvis der allerede kører et job i den samme gruppe (dvs. for den samme gren), så vil det nuværende job blive annulleret. Dette er nyttigt for at undgå at have flere samtidige job, der kører for den samme gren, hvilket kan spare ressourcer og sikre, at kun det seneste job for en gren kører.
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository #Det gør man fordi man skal have adgang til koden for at kunne bygge og teste den.
+        uses: actions/checkout@v4 #Det er en standard handling i GitHub Actions, der tjekker koden ud fra det repository, hvor workflowet kører
+
+      - name: Setup .NET SDK #Det gør man for at sikre, at man har den korrekte version af .NET SDK installeret, så man kan bygge og teste koden.
+        uses: actions/setup-dotnet@v4 #Det er en standard handling i GitHub Actions, der installerer den angivne version af .NET SDK på runneren,
+        with:
+          dotnet-version: 8.0.x #Det angiver den version af .NET SDK, der skal installeres. I dette tilfælde er det version 8.0.x, hvilket betyder, at det vil installere den seneste patch-version af .NET 8.0.
+
+      - name: Cache NuGet packages #Det gør man for at forbedre build-tiden ved at cache de NuGet-pakker, der bruges i projektet, så de ikke behøver at blive hentet fra nettet hver gang workflowet kører.
+        uses: actions/cache@v4 #Det er en standard handling i GitHub Actions, der bruges til at cache filer og mapper mellem workflow-kørsler for at forbedre ydeevnen.
+        with:
+          path: ~/.nuget/packages #Det angiver stien til de NuGet-pakker, der skal caches. I dette tilfælde er det den standardmappe, hvor NuGet gemmer de hentede pakker.
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }} #Det angiver nøglen for cachen, som bruges til at identificere den cache, der skal bruges eller oprettes. Nøglen består af operativsystemet på runneren og en hash af alle .csproj- og .sln-filer i projektet. Dette sikrer, at cachen kun genbruges, hvis disse filer ikke har ændret sig, hvilket betyder, at de samme NuGet-pakker stadig er relevante.
+          restore-keys: | #Det angiver en fallback-nøgle, der bruges til at finde en cache, hvis den primære nøgle ikke findes. I dette tilfælde er det en generel nøgle baseret på operativsystemet og "nuget-", hvilket betyder, at hvis der ikke findes en cache med den specifikke hash, vil den prøve at finde en cache, der matcher operativsystemet og "nuget-", hvilket kan være nyttigt, hvis der er mindre ændringer
+            ${{ runner.os }}-nuget- 
+
+      # Restore/build/test in Release so it matches how you'd ship/run in Docker
+      - name: Restore
+        run: dotnet restore Plejecenter.sln
+      # Build (Release) bruges til at sikre at der ikke er nogen build fejl i Release konfiguration som ikke nødvendigvis ville blive fanget i Debug konfigurationen.
+      - name: Build (Release)
+        run: dotnet build Plejecenter.sln -c Release --no-restore
+      # Test (Release) bruges til at sikre at alle tests kører og passer i Release konfigurationen, hvilket er vigtigt for at fange eventuelle problemer der kun opstår i denne konfiguration.
+      - name: Test (Release)
+        run: dotnet test Plejecenter.sln -c Release --no-build --logger "trx;LogFileName=test-results.trx"
+      # Upload test results (TRX) bruges til at uploade testresultaterne i TRX-format, hvilket gør det nemt at analysere og visualisere testresultaterne i GitHub Actions UI, og det sikrer også at testresultaterne bevares selv hvis jobbet fejler.
+      - name: Upload test results (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+
