@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Plejecenter.Domain;
 using Plejecenter.Shared.Enums;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using Plejecenter.Shared.DTOs.EmployePage;
@@ -13,6 +15,7 @@ namespace Plejecenter.WebApp.Components.Pages
     public partial class EmployePage : ComponentBase
     {
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+        [Inject] public IJSRuntime JS { get; set; } = default!;
 
         private HttpClient http = default!; // Initialized in OnInitializedAsync for better control over BaseAddress
 
@@ -25,6 +28,8 @@ namespace Plejecenter.WebApp.Components.Pages
         private UserRole[] AvailableRoles;
         private bool showDeleteConfirmation = false;
         private User employeeToDelete;
+        private bool isUnauthorized;
+        private bool hasLoadedOnce;
         #endregion
 
         #region Lifecycle
@@ -33,6 +38,25 @@ namespace Plejecenter.WebApp.Components.Pages
             http = HttpClientFactory.CreateClient("SlottetApi");
 
             AvailableRoles = (UserRole[])Enum.GetValues(typeof(UserRole));
+            // Vigtigt: vi loader IKKE data her, fordi Blazor Server kan være midt i rendering,
+            // og AuthHeaderHandler bruger JS interop til at hente JWT fra localStorage.
+            // Hvis det sker for tidligt kan requesten blive sendt uden token -> 401 -> circuit crasher.
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!firstRender || hasLoadedOnce) return;
+            hasLoadedOnce = true;
+
+            // Hent token fra browserens localStorage EFTER første render.
+            // (JS interop er ikke stabilt/tilgængeligt tidligere i lifecycle i Blazor Server.)
+            var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             await LoadEmployeesAsync();
         }
         #endregion
@@ -44,7 +68,17 @@ namespace Plejecenter.WebApp.Components.Pages
                 ? "api/employees"
                 : $"api/employees?search={System.Uri.EscapeDataString(searchTerm)}";
 
-            var items = await http.GetFromJsonAsync<List<EmployeePageDTO.EmployeeDto>>(url) ?? new();
+            var resp = await http.GetAsync(url);
+            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // Hvis token mangler/er udløbet, så redirecter vi til login i stedet for at crashe.
+                isUnauthorized = true;
+                StateHasChanged();
+                return;
+            }
+
+            resp.EnsureSuccessStatusCode();
+            var items = await resp.Content.ReadFromJsonAsync<List<EmployeePageDTO.EmployeeDto>>() ?? new();
 
             // Vi bruger User i UI (validering + muterbar table state)
             Employees = items.Select(d => new User

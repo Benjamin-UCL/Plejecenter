@@ -4,6 +4,11 @@
 
 <PageTitle>Employee</PageTitle>
 
+@if (isUnauthorized)
+{
+    <RedirectToLogin />
+}
+
 @* ============================================================
    SIDE: EmployePage (/employee)
    FORMÅL: Administration af medarbejdere.
