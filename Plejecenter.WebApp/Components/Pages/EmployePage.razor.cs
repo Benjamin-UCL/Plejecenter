@@ -90,6 +90,10 @@ namespace Plejecenter.WebApp.Components.Pages
                 Role = d.Role,
                 ActiveDeactive = d.ActiveDeactive
             }).ToList();
+
+            // Vi loader første gang i OnAfterRenderAsync (altså EFTER en render).
+            // Derfor skal vi selv trigge en ny render, ellers bliver tabellen først opdateret ved næste UI-event (klik/søg).
+            await InvokeAsync(StateHasChanged);
         }
         #endregion
 
