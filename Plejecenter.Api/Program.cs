@@ -58,6 +58,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Under normale kørsler (Docker/dev) vil vi migrere og seed'e databasen.
+// Men i integration tests bytter vi DbContext ud (typisk til InMemory),
+// og der giver Migrate() ikke mening. Derfor springer vi dette over i "Testing".
+if (!app.Environment.IsEnvironment("Testing"))
+{
 var retries = 10;
 while (retries > 0)
 {
@@ -91,6 +96,7 @@ while (retries > 0)
         retries--;
         Thread.Sleep(3000);
     }
+}
 }
 
 

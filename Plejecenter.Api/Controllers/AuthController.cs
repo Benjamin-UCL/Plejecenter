@@ -45,6 +45,9 @@ public class AuthController : ControllerBase
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Alias),
+            // Role-claim gør at [Authorize(Roles="...")] virker på controllers/endpoints.
+            // Vi bruger enum-navnet (fx "Administrator"), så det matcher `UserRole` i Shared.
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
         };
 
         var token = new JwtSecurityToken(
