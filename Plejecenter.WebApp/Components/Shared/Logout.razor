@@ -1,0 +1,14 @@
+﻿@inject JwtAuthStateProvider Auth
+
+<div>
+
+	<button class="btn btn-primary" @onclick="TryLogout">Logout</button>
+
+</div>
+
+@code {
+	public void TryLogout()
+	{
+		Auth.Logout();
+	}
+}

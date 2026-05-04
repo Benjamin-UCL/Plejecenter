@@ -1,0 +1,28 @@
+﻿@using Plejecenter.Shared.Enums;
+
+@* 
+Titel, 
+knapper,
+dropdown,
+dato,
+Vagttype,
+Tilføj medarbejder,
+*@
+
+@code {
+
+	public DateTime Today { get; set; } = DateTime.Today;
+
+	public ShiftType ShiftType { get; set; } = 0;
+
+	public void CreateOverlap()
+	{
+		@* Opret overlap, tilføj medarbejdere, tildel ansvar, redirect til? *@
+	}
+
+	public void Skip()
+	{
+	}
+
+
+}
