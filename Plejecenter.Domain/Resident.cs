@@ -26,7 +26,7 @@ public class Resident
     public List<ScheduleMedication> ScheduleMedications { get; set; } = new();
     public List<PatientTime> PatientTimes { get; set; } = new();
 
-    public Department Department { get; set; }
+    public Department? Department { get; set; }
     public int Apartment {  get; set; }
 }
     
