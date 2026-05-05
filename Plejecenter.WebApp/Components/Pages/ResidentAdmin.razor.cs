@@ -73,46 +73,11 @@ namespace Plejecenter.WebApp.Components.Pages
             }
 
             await InvokeAsync(StateHasChanged);
-            // var resp = await http.GetAsync("api/residents");
-            // if (resp.StatusCode == HttpStatusCode.Unauthorized)
-            // {
-            //     isUnauthorized = true;
-            //     StateHasChanged();
-            //     return;
-            // }
-
-            // resp.EnsureSuccessStatusCode();
-            // residents = await resp.Content.ReadFromJsonAsync<List<ResidentAdminPageDTO.ResidentDto>>() ?? new();
-
-            // await InvokeAsync(StateHasChanged);
         }
         #endregion
 
         private async Task HandleAddResidentAsync()
         {
-            // Console.WriteLine("Button Clicked!");
-
-            // var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
-    
-            // if (!string.IsNullOrWhiteSpace(token))
-            // {
-            //     // 2. Attach the token to this specific request
-            //     http.DefaultRequestHeaders.Authorization = 
-            //         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            // }
-
-            // var resp = await http.PostAsJsonAsync("api/residents", newResident);
-            // if (resp.IsSuccessStatusCode)
-            // {
-            //     newResident = new();
-            //     await LoadResidentsAsync();
-            // }
-            // else
-            // {
-            //     var error = await resp.Content.ReadAsStringAsync();
-            //     Console.WriteLine($"Error adding resident: {error}");
-            // }
-
         // 1. FRESH TOKEN (Just like teammate)
             var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
             http.DefaultRequestHeaders.Authorization = 
