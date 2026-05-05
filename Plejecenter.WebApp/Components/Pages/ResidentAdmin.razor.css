@@ -57,3 +57,51 @@ h2 {
     overflow-y: auto;
     padding-right: 4px;
 }
+
+/* css for the modal */
+/* The dark background that covers the whole screen */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Dim the background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* The actual modal box */
+.edit-modal {
+    background-color: #1a1d21; /* Match your dark theme */
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-control {
+    background: #2a2e33;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Validation text */
+.validation-message {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}

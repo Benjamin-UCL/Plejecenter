@@ -17,6 +17,10 @@ namespace Plejecenter.WebApp.Components.Pages
         private bool isUnauthorized;
         private bool hasLoadedOnce;
         private ResidentAdminPageDTO.CreateResidentRequest newResident = new();
+        //brugt i HandleEditResidentAsycn
+        private bool showEditModal = false;
+        private ResidentAdminPageDTO.UpdateResidentRequest editingResident = new();
+        private int editingId;
 
         #region Lifecycle
         protected override async Task OnInitializedAsync()
@@ -125,9 +129,53 @@ namespace Plejecenter.WebApp.Components.Pages
 
         private async Task HandleEditResidentAsync(int id)
         {
-            // For simplicity, we'll just log the ID here.
-            // In a real app, you'd likely open a modal with a form to edit the resident's details.
-            Console.WriteLine($"Edit resident with ID: {id}");
+            editingId = id;
+            var resident = residents.FirstOrDefault(r => r.Id == id);
+            
+            if (resident != null)
+            {
+                //populate the DTO with existing data
+                editingResident = new ResidentAdminPageDTO.UpdateResidentRequest
+                {
+                    Id = resident.Id,
+                    FirstName = resident.FirstName,
+                    LastName = resident.LastName,
+                    Alias = resident.Alias,
+                    Apartment = resident.Apartment,
+                    Status = resident.Status,
+                    ShoppingDay = "",
+                    PaymentMethod = "",
+                    ShoppingNotes = "",
+                    PaymentNotes = "",
+                    Message = "",
+                    RiskLevel = resident.RiskLevel
+                };
+            
+            showEditModal = true;
+            }
+
+        }
+
+        private async Task SaveEditAsync()
+        {
+            Console.WriteLine("Gemmer...");
+            // kalder PUT endpointet
+            await SetAuthHeader();
+
+            var resp = await http.PutAsJsonAsync($"api/residents/{editingId}", editingResident);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                showEditModal = false;
+                await LoadResidentsAsync(); // Refresh list
+            }
+            else
+            {
+                // var errorMsg = await resp.Content.ReadAsStringAsync();
+                // Console.WriteLine($"Kunne ikke opdatere: {errorMsg}");
+                var errorDetail = await resp.Content.ReadAsStringAsync();
+                Console.WriteLine($"Kritiske detaljer fra API: {errorDetail}");
+            }
         }
 
         private List<String> emptyList = new(); // pro forma
