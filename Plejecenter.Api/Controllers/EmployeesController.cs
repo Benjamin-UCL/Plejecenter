@@ -10,7 +10,7 @@ namespace Plejecenter.Api.Controllers
     [ApiController]
     // Kræver at brugeren er logget ind (har en gyldig JWT).
     // "Write" endpoints længere nede kræver derudover Administrator-rolle.
-    [Authorize]
+    //[Authorize]
     public class EmployeesController : ControllerBase
     {
         private readonly IEmployeeService _employees;

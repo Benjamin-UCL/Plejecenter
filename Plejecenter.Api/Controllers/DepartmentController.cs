@@ -6,7 +6,7 @@ using Plejecenter.Infrastructure.Data;
 
 namespace Plejecenter.Api.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class DepartmentController : ControllerBase

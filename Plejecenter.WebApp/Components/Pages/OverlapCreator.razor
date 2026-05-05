@@ -1,28 +1,56 @@
-﻿@using Plejecenter.Shared.Enums;
+﻿@page "/start"
+@using Plejecenter.Domain
+@using Plejecenter.Shared.Enums;
+@inject HttpClient Http;
 
-@* 
-Titel, 
-knapper,
-dropdown,
-dato,
-Vagttype,
-Tilføj medarbejder,
-*@
+<h1>Opret Overlap</h1>
+
+<h3>@Today.ToString()</h3>
+
+<select @bind="selectedDepartmentId">
+	@foreach (Department department in Departments)
+	{
+		<option value="@department.Id">@department.Title</option>
+	}
+</select>
+
+<select @bind="SelectedShiftType">
+	@foreach (ShiftType type in Enum.GetValues<ShiftType>())
+	{
+		<option value="@type.ToString()">@type.ToString()</option>
+	}
+</select>
+
+<button @onclick="CreateOverlap">Opret</button>
+<button @onclick="Skip">Skip</button>
+
 
 @code {
-
+	public List<Department> Departments = new List<Department>();
+	public int selectedDepartmentId { get; set; }
+	public List<User> Users = new List<User>();
 	public DateTime Today { get; set; } = DateTime.Today;
-
-	public ShiftType ShiftType { get; set; } = 0;
-
-	public void CreateOverlap()
+	public ShiftType SelectedShiftType { get; set; }
+	public async Task CreateOverlap()
 	{
-		@* Opret overlap, tilføj medarbejdere, tildel ansvar, redirect til? *@
+		var overlap = new Overlap
+		{
+			date = Today,
+			ShiftType = SelectedShiftType,
+			department = Departments.First(d => d.Id == selectedDepartmentId),
+			Personel = Users
+		};
+		var response = await Http.PostAsJsonAsync("api/overlap", overlap);
+		if (response.IsSuccessStatusCode)
+		{
+			var created = await response.Content.ReadFromJsonAsync<Overlap>();
+			int newId = created.Id;
+		}
 	}
-
-	public void Skip()
+	public void Skip() { }
+	public void DepartmentSelected() { }
+	protected override async Task OnInitializedAsync()
 	{
+		Departments = await Http.GetFromJsonAsync<List<Department>>("api/department");
 	}
-
-
 }
