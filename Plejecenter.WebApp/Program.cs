@@ -1,6 +1,7 @@
 using Plejecenter.WebApp.Components;
 using Plejecenter.WebApp.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Plejecenter.WebApp.Services;
 using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ builder.Services.AddHttpClient("SlottetApi", client =>
 
 // Default HttpClient (used by Login.razor via @inject HttpClient Http)
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("SlottetApi"));
+
+builder.Services.AddScoped<AppState>();
 
 var app = builder.Build();
 

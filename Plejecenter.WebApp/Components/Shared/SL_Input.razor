@@ -1,6 +1,6 @@
 ﻿@using Services
-@inject AuthService AuthService
-@inject ModalService ModalService
+@* @inject AuthService AuthService
+@inject ModalService ModalService *@
 
 <SL_InputField Label="@Name" Value="@newValue" OnChanged="OnChanged" name="@Name" style="background-color=red" />
 
@@ -26,7 +26,7 @@
 
         // Prompt brugerens adgangskode - Via PW-Modal
         Console.WriteLine("Marco");
-        ModalService.Show(EventCallback.Factory.Create<bool>(this, HandleAuthResult));
+        // ModalService.Show(EventCallback.Factory.Create<bool>(this, HandleAuthResult));
 
         // Tjek adgangskoden imod vagt personale
         // Midlertidig prototype implamentation
@@ -46,7 +46,7 @@
         Console.WriteLine("SL_Input - Handel result");
         if (succes) currentValue = newValue = "Boom shakalak!";
         else newValue = currentValue;
-        ModalService.Close();
+        // ModalService.Close();
     }
 
 }

@@ -1,7 +1,8 @@
 ﻿@page "/start"
 @using Plejecenter.Domain
 @using Plejecenter.Shared.Enums;
-@inject HttpClient Http;
+@inject HttpClient Http
+@inject AppState AppState
 
 <h1>Opret Overlap</h1>
 
@@ -31,6 +32,8 @@
 	public List<User> Users = new List<User>();
 	public DateTime Today { get; set; } = DateTime.Today;
 	public ShiftType SelectedShiftType { get; set; }
+	public List<Overlap> Overlaps = new List<Overlap>();
+
 	public async Task CreateOverlap()
 	{
 		var overlap = new Overlap
@@ -40,17 +43,25 @@
 			department = Departments.First(d => d.Id == selectedDepartmentId),
 			Personel = Users
 		};
+
 		var response = await Http.PostAsJsonAsync("api/overlap", overlap);
+
 		if (response.IsSuccessStatusCode)
 		{
 			var created = await response.Content.ReadFromJsonAsync<Overlap>();
-			int newId = created.Id;
+			AppState.CurrentOverlap = created;
 		}
 	}
+
 	public void Skip() { }
+	
 	public void DepartmentSelected() { }
+	
 	protected override async Task OnInitializedAsync()
 	{
 		Departments = await Http.GetFromJsonAsync<List<Department>>("api/department");
+		Overlaps = await Http.GetFromJsonAsync<List<Overlap>>("api/overlap");
+		if (Departments.Any())
+			selectedDepartmentId = Departments.First().Id;
 	}
 }

@@ -7,7 +7,7 @@ using Plejecenter.Infrastructure.Data;
 
 namespace Plejecenter.Api.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class OverlapController : Controller
@@ -38,6 +38,7 @@ public class OverlapController : Controller
     [HttpPost] // Create
     public async Task<ActionResult<Overlap>> Create(Overlap overlap)
     {
+        _db.Entry(overlap.department).State = EntityState.Unchanged;
         _db.Overlaps.Add(overlap);
         await _db.SaveChangesAsync();
         return CreatedAtAction("GetById", new { id = overlap.Id }, overlap);
