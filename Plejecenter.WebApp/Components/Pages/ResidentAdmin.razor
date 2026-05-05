@@ -1,4 +1,5 @@
 @page "/residentadmin"
+@using Plejecenter.Domain
 @using Plejecenter.WebApp.Components.Shared
 
 
@@ -25,9 +26,12 @@
     @foreach (var resident in residents)
     {
         <ResidentCard
+            ResidentId="@resident.Id"
             FullName="@($"{resident.FirstName} {resident.LastName}")"
             Initials="@(resident.FirstName[0] + ". " + resident.LastName[0] + ".")"
-		        MedicationTimes="@emptyList" />
+		        MedicationTimes="@emptyList"
+            OnDelete="HandleDeleteResidentAsync"
+            OnEdit="HandleEditResidentAsync" />
     }
 
 

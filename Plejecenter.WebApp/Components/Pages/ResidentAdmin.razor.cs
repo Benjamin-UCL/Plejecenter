@@ -29,28 +29,23 @@ namespace Plejecenter.WebApp.Components.Pages
             if (!firstRender || hasLoadedOnce) return;
             hasLoadedOnce = true;
 
-            var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                http.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
+            // var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
+            // if (!string.IsNullOrWhiteSpace(token))
+            // {
+            //     http.DefaultRequestHeaders.Authorization =
+            //         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // }
+
+            //bruger helper
+            await SetAuthHeader();
 
             await LoadResidentsAsync();
         }
 
         private async Task LoadResidentsAsync()
         {
-            // 1. Fetch the token from the browser's local storage
-            var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
-
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                // 2. Attach the token to the HttpClient headers
-                http.DefaultRequestHeaders.Authorization = 
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-
+            //bruger helper igen isteden for at duplikere koden ovenpå
+            await SetAuthHeader();
             // 3. Make the call
             var resp = await http.GetAsync("api/residents");
 
@@ -77,12 +72,9 @@ namespace Plejecenter.WebApp.Components.Pages
         #endregion
 
         private async Task HandleAddResidentAsync()
-        {
-        // 1. FRESH TOKEN (Just like teammate)
-            var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
-            http.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
+        { 
+            //igen bruger helperen for at undgå duplikering
+            await SetAuthHeader();
             // 2. EXPLICIT REQUEST DTO
             var req = new ResidentAdminPageDTO.CreateResidentRequest
             {
@@ -101,6 +93,41 @@ namespace Plejecenter.WebApp.Components.Pages
                 newResident = new(); 
                 await LoadResidentsAsync();
             }
+        }
+
+        private async Task HandleDeleteResidentAsync(int id)
+        {
+            // Simple browser popup check
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette denne beboer?");
+            
+            if (confirmed)
+            {
+                await SetAuthHeader();
+                var resp = await http.DeleteAsync($"api/residents/{id}");
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    await LoadResidentsAsync(); // Refresh list
+                }
+            }
+        }
+
+        private async Task SetAuthHeader()
+        {
+            var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+        }
+
+        private async Task HandleEditResidentAsync(int id)
+        {
+            // For simplicity, we'll just log the ID here.
+            // In a real app, you'd likely open a modal with a form to edit the resident's details.
+            Console.WriteLine($"Edit resident with ID: {id}");
         }
 
         private List<String> emptyList = new(); // pro forma

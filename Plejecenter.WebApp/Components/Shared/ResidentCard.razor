@@ -2,8 +2,8 @@
 <div class="resident-card">
     <div class="resident-header">
         <div class="resident-name">@FullName (@Initials)</div>
-        <button class="btn-edit">Rediger</button>
-        <button class="btn-delete">Slet</button>
+        <button class="btn-edit" @onclick="() => OnEdit.InvokeAsync(ResidentId)">Rediger</button>
+        <button class="btn-delete" @onclick="() => OnDelete.InvokeAsync(ResidentId)">Slet</button>
     </div>
     <div class="resident-body">
         <div class="med-label">Medicin Tider</div>
