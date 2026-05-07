@@ -1,0 +1,166 @@
+@page "/Medicin"
+@using Plejecenter.Domain
+@using Plejecenter.WebApp.Components.Shared
+@inject HttpClient Http
+
+<PageTitle>Medicinliste</PageTitle>
+
+<ListToolbar Title="Medicinliste">
+    <button class="btn-add btn-add-list" type="button" @onclick="AddNew">+ Tilføj medicin</button>
+</ListToolbar>
+
+<ConfirmDialog IsOpen="showDeleteConfirm"
+               IsOpenChanged="@(v => showDeleteConfirm = v)"
+               Title="Bekræft sletning"
+               ConfirmText="Slet"
+               CancelText="Annuller"
+               ConfirmButtonClass="danger"
+               OnCancel="@(() => medicationToDelete = null)"
+               OnConfirm="ExecuteDelete">
+    @if (medicationToDelete != null)
+    {
+        <p>Er du sikker på, at du vil slette <strong>@medicationToDelete.PrepName</strong>?</p>
+        <p>Denne handling kan ikke fortrydes.</p>
+    }
+</ConfirmDialog>
+
+<section class="list-section">
+
+    @if (showForm)
+    {
+        <section class="add-med-section">
+            <div class="add-med-card">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text"
+                               placeholder="Medicinnavn"
+                               @bind="editingMedication.PrepName"
+                               @bind:event="oninput" />
+                    </div>
+                    <div class="form-group-actions">
+                        <button class="btn-add" type="button"
+                                disabled="@string.IsNullOrWhiteSpace(editingMedication.PrepName)"
+                                @onclick="SaveAsync">
+                            @(editingMedication.Id == 0 ? "Tilføj" : "Gem")
+                        </button>
+                        <button class="btn-cancel" type="button" @onclick="CancelForm">Annuller</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error-msg">@errorMessage</p>
+    }
+
+    <div class="table-scroll-container">
+        <table class="med-table">
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th class="col-fit">Handlinger</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var med in Medications)
+                {
+                    <tr>
+                        <td>@med.PrepName</td>
+                        <td class="text-center">
+                            <div class="col-actions">
+                                <button class="btn-edit" type="button" @onclick="() => Edit(med)">Rediger</button>
+                                <button class="btn-delete" type="button" @onclick="() => ConfirmDelete(med)">Slet</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+@code {
+    private List<Medication> Medications = new();
+    private Medication editingMedication = new();
+    private Medication? medicationToDelete;
+    private bool showForm;
+    private bool showDeleteConfirm;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            Medications = await Http.GetFromJsonAsync<List<Medication>>("api/medications") ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke hente medicin: {ex.Message}";
+        }
+    }
+
+    private void AddNew()
+    {
+        editingMedication = new Medication();
+        errorMessage = string.Empty;
+        showForm = true;
+    }
+
+    private void Edit(Medication med)
+    {
+        editingMedication = new Medication { Id = med.Id, PrepName = med.PrepName };
+        errorMessage = string.Empty;
+        showForm = true;
+    }
+
+    private void CancelForm()
+    {
+        showForm = false;
+        editingMedication = new Medication();
+    }
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            if (editingMedication.Id == 0)
+                await Http.PostAsJsonAsync("api/medications", editingMedication);
+            else
+                await Http.PutAsJsonAsync($"api/medications/{editingMedication.Id}", editingMedication);
+
+            showForm = false;
+            editingMedication = new Medication();
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke gemme: {ex.Message}";
+        }
+    }
+
+    private void ConfirmDelete(Medication med)
+    {
+        medicationToDelete = med;
+        showDeleteConfirm = true;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (medicationToDelete == null) return;
+        try
+        {
+            await Http.DeleteAsync($"api/medications/{medicationToDelete.Id}");
+            medicationToDelete = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke slette: {ex.Message}";
+        }
+    }
+}

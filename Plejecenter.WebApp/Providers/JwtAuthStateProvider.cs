@@ -22,7 +22,16 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
             if (string.IsNullOrWhiteSpace(token))
                 return Anonymous;
 
-            var claims = ParseClaimsFromJwt(token);
+            var claims = ParseClaimsFromJwt(token).ToList();
+
+            var expClaim = claims.FirstOrDefault(c => c.Type == "exp");
+            if (expClaim != null && long.TryParse(expClaim.Value, out var exp)
+                && DateTimeOffset.UtcNow.ToUnixTimeSeconds() > exp)
+            {
+                await _js.InvokeVoidAsync("localStorage.removeItem", "authToken");
+                return Anonymous;
+            }
+
             var identity = new ClaimsIdentity(claims, "jwt");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
