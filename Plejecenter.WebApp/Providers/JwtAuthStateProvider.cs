@@ -53,6 +53,8 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
     public async Task Logout()
     {
         await _js.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        await _js.InvokeVoidAsync("localStorage.removeItem", "selectedDepartmentId");
+        await _js.InvokeVoidAsync("localStorage.removeItem", "selectedDepartmentName");
         NotifyAuthenticationStateChanged(Task.FromResult(Anonymous));
     }
 

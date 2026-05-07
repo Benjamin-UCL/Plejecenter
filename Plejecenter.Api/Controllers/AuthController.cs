@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +21,19 @@ public class AuthController : ControllerBase
     {
         _config = config;
         _db = db;
+    }
+
+    [Authorize]
+    [HttpGet("me/departments")]
+    public IActionResult GetMyDepartments()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var departments = _db.Users
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Departments)
+            .Select(d => new { d.Id, d.Title })
+            .ToList();
+        return Ok(departments);
     }
 
     [HttpPost("login")]

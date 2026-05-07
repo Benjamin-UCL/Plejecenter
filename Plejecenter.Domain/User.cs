@@ -29,4 +29,5 @@ public class User
  public bool ActiveDeactive { get; set; } = true;
 
  public List<Responsibility> Responsibilities { get; set; } = new();
+ public List<Department> Departments { get; set; } = new();
 }
