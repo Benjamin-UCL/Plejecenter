@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Plejecenter.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 namespace Plejecenter.Api.Controllers;
 
-[Authorize]
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ResidentsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -72,12 +73,31 @@ public class ResidentsController : ControllerBase
     }
 
     [HttpPost] // Create
-    public async Task<ActionResult<Resident>> Create(Resident resident)
+    public async Task<ActionResult<Resident>> Create(ResidentAdminPageDTO.CreateResidentRequest request)
     {
-        _db.Residents.Add(resident);
+        var newResident = new Resident
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Alias = request.Alias,
+            SocialSecurityNumber = request.SocialSecurityNumber,
+            Apartment = request.Apartment,
+            Status = request.Status,
+            // Set defaults for missing fields to avoid null errors
+            ShoppingDay = "",
+            PaymentMethod = "",
+            ShoppingNotes = "",
+            PaymentNotes = "",
+            Message = "",
+            RiskLevel = 0 ,
+
+            Department = await _db.Departments.FirstOrDefaultAsync()
+        };
+
+        _db.Residents.Add(newResident);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction("GetResident", new { id = resident.Id }, resident);
+        return CreatedAtAction(nameof(GetById), new { id = newResident.Id }, newResident);
     }
 
     [HttpDelete("{id}")] // Delete

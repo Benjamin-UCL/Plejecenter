@@ -10,6 +10,8 @@ COPY ["Plejecenter.Domain/Plejecenter.Domain.csproj", "Plejecenter.Domain/"]
 COPY ["Plejecenter.Shared/Plejecenter.Shared.csproj", "Plejecenter.Shared/"]
 RUN dotnet restore "Plejecenter.WebApp/Plejecenter.WebApp.csproj"
 COPY . .
+
+
 RUN dotnet publish "Plejecenter.WebApp/Plejecenter.WebApp.csproj" -c Release -o /app/publish
 
 FROM base AS final

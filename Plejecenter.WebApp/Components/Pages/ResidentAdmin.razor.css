@@ -1,0 +1,107 @@
+h2 {
+    color: var(--primery-text);
+    margin-bottom: 20px;
+}
+
+/* Tilføj ny beboer sektion */
+
+.add-resident-section {
+    margin-bottom: 30px;
+}
+
+.form-header{
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    font-size: 1.1em;
+}
+
+.form-row {
+    border: 1px solid var(--borders);
+    background-color: var(--surface);
+    padding: 15px;
+    border-radius: 0 4px 4px 4px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.btn-add-resident {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Beboer oversigt */
+.residents-wrapper {
+    border: 1px solid var(--borders);
+    background-color: var(--surface);
+    padding: 15px;
+    border-radius: 0 4px 4px 4px;
+    display: flex;
+    gap: 15px;
+    align-items: relative;
+}
+
+.residents-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* css for the modal */
+/* The dark background that covers the whole screen */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Dim the background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* The actual modal box */
+.edit-modal {
+    background-color: #1a1d21; /* Match your dark theme */
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-control {
+    background: #2a2e33;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Validation text */
+.validation-message {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
