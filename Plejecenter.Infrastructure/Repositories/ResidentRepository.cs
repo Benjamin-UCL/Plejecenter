@@ -30,7 +30,17 @@ public class ResidentRepository : IResidentRepository
         return await q
             .OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
             .Select(r => new ResidentAdminPageDTO.ResidentDto(
-                r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel))
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message))
             .ToListAsync();
     }
 
@@ -40,7 +50,18 @@ public class ResidentRepository : IResidentRepository
         return r is null
             ? null
             : new ResidentAdminPageDTO.ResidentDto(
-                r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel);
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message
+                );
     }
 
     public async Task<ResidentAdminPageDTO.ResidentDto> CreateAsync(ResidentAdminPageDTO.CreateResidentRequest req)
@@ -59,7 +80,18 @@ public class ResidentRepository : IResidentRepository
         await _db.SaveChangesAsync();
 
         return new ResidentAdminPageDTO.ResidentDto(
-            r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel);
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message
+            );
     }
 
     public async Task<bool> UpdateAsync(int id, ResidentAdminPageDTO.UpdateResidentRequest req)

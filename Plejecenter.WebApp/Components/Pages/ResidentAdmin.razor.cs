@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Plejecenter.Domain;
 using Plejecenter.Shared.DTOs.ResidentAdminPage;
+using Plejecenter.WebApp.Components.Shared;
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection.Metadata;
@@ -21,6 +23,15 @@ namespace Plejecenter.WebApp.Components.Pages
         private bool showEditModal = false;
         private ResidentAdminPageDTO.UpdateResidentRequest editingResident = new();
         private int editingId;
+
+
+        //new fields and stuff for update above this
+        private DateTime currentDate = DateTime.Now;
+        private ResidentPicker.ResidentItem? selectedPickerResident;
+        private Resident? currentResident;
+        private List<ResidentPicker.ResidentItem> pickerResidents = new();
+
+
 
         #region Lifecycle
         protected override async Task OnInitializedAsync()
@@ -46,33 +57,102 @@ namespace Plejecenter.WebApp.Components.Pages
             await LoadResidentsAsync();
         }
 
+
+    //new LoadResidentsAsync
         private async Task LoadResidentsAsync()
         {
-            //bruger helper igen isteden for at duplikere koden ovenpå
             await SetAuthHeader();
-            // 3. Make the call
             var resp = await http.GetAsync("api/residents");
-
-            if (resp.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                isUnauthorized = true;
-                await InvokeAsync(StateHasChanged);
-                return;
-            }
 
             if (resp.IsSuccessStatusCode)
             {
-                isUnauthorized = false; // Reset if it was previously unauthorized
+                isUnauthorized = false;
                 residents = await resp.Content.ReadFromJsonAsync<List<ResidentAdminPageDTO.ResidentDto>>() ?? new();
+                
+                // --- ADD THIS LINE ---
+                // We map the API DTOs to the specific format the ResidentPicker component wants
+                pickerResidents = residents.Select(r => new ResidentPicker.ResidentItem 
+                { 
+                    Id = r.Id, 
+                    Name = $"{r.FirstName} {r.LastName}",
+                    Status = r.RiskLevel // Or whatever mapping your status uses
+                }).ToList();
             }
-            else
-            {
-                // Handle other errors (404, 500, etc.)
-                Console.WriteLine($"Failed to load residents: {resp.StatusCode}");
-            }
-
+            // ... rest of your error handling
             await InvokeAsync(StateHasChanged);
         }
+        // trigger når du klikker på en dato i DatePicker'en, og den opdaterer currentDate som DetailCard'en viser
+        private async Task OnDateChanged(DateTime newDate)
+        {
+            currentDate = newDate;
+            // Potentially reload data for the new date here
+        }
+        // trigger når du klikker på en beboer i dropdownen, og den opdaterer currentResident som DetailCard'en viser
+        private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
+        {
+            selectedPickerResident = selected;
+            
+            if (selected == null)
+            {
+                currentResident = null;
+                return;
+            }
+
+            // 1. Find the DTO from our loaded list using the ID
+            var dto = residents.FirstOrDefault(r => r.Id == selected.Id);
+            
+            if (dto != null)
+            {
+                currentResident = new Resident 
+                {
+                    Id = dto.Id,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Status = dto.Status,
+                    RiskLevel = dto.RiskLevel,
+                    ShoppingDay = dto.ShoppingDay,
+                    ShoppingNotes = dto.ShoppingNotes,
+                    PaymentNotes = dto.PaymentNotes,
+                    Message = dto.Message
+                };
+            }
+        }   
+        //håndterer ændringer fra DetailCard'en, og opdaterer currentResident som dropdown'en og DetailCard'en viser
+        private void OnDetailChanged(Resident updatedResident)
+        {
+            currentResident = updatedResident;
+            // Here you could call an API save method to persist changes automatically
+        }
+
+
+
+        // private async Task LoadResidentsAsync()
+        // {
+        //     //bruger helper igen isteden for at duplikere koden ovenpå
+        //     await SetAuthHeader();
+        //     // 3. Make the call
+        //     var resp = await http.GetAsync("api/residents");
+
+        //     if (resp.StatusCode == HttpStatusCode.Unauthorized)
+        //     {
+        //         isUnauthorized = true;
+        //         await InvokeAsync(StateHasChanged);
+        //         return;
+        //     }
+
+        //     if (resp.IsSuccessStatusCode)
+        //     {
+        //         isUnauthorized = false; // Reset if it was previously unauthorized
+        //         residents = await resp.Content.ReadFromJsonAsync<List<ResidentAdminPageDTO.ResidentDto>>() ?? new();
+        //     }
+        //     else
+        //     {
+        //         // Handle other errors (404, 500, etc.)
+        //         Console.WriteLine($"Failed to load residents: {resp.StatusCode}");
+        //     }
+
+        //     await InvokeAsync(StateHasChanged);
+        // }
         #endregion
 
         private async Task HandleAddResidentAsync()
@@ -101,6 +181,13 @@ namespace Plejecenter.WebApp.Components.Pages
 
         private async Task HandleDeleteResidentAsync(int id)
         {
+
+            // 1. Check right away. If no one is selected, just stop.
+            if (id <= 0) 
+            {
+                Console.WriteLine("Ingen beboer valgt til sletning.");
+                return;
+            }
             // Simple browser popup check
             bool confirmed = await JS.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette denne beboer?");
             

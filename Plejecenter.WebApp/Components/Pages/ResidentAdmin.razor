@@ -3,6 +3,41 @@
 @using Plejecenter.WebApp.Components.Shared
 
 
+<div class="admin-main-wrapper">
+    <div class="top-nav">
+        <DateNavigator Date="currentDate" DateChanged="OnDateChanged" />
+    </div>
+
+    <div class="admin-content-grid">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <ResidentPicker 
+            Residents="pickerResidents"
+            SelectedResident="selectedPickerResident"
+            SelectedResidentChanged="OnResidentSelected" />
+
+            <div class="button-row">
+                <button class="btn-add">Tilføj</button>
+                <button class="btn-edit">Rediger</button>
+                <button class="btn-delete">Slet</button>
+            </div>
+        </aside>
+
+        <!-- Main Card -->
+        <section class="admin-main-card">
+            <DetailCard Resident="currentResident"
+                        ResidentChanged="OnDetailChanged" />
+        </section>
+
+        <!-- Log -->
+        <aside class="admin-log">
+            <h3>Beboer log</h3>
+            ...
+        </aside>
+    </div>
+</div>
+
+@* 
 <h2>Beboer Administration</h2>
 
 <!-- Add Resident Section -->
@@ -18,7 +53,7 @@
 
 <!-- Residents Grid -->
 <div class="residents-wrapper">
-  @* <span class="scroll-arrow up">&#8743;</span> *@
+ 
 
   <div class="residents-grid" id="residentsGrid">
 
@@ -37,8 +72,10 @@
 
   </div><!-- end grid -->
 
- @*  <span class="scroll-arrow down">&#8744;</span> *@
-</div>
+
+</div> *@
+
+
 
 @* --- MODALS BELOW --- *@
 

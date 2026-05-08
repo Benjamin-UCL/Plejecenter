@@ -12,7 +12,11 @@ public class ResidentAdminPageDTO
         string Alias,
         int Apartment,
         string Status,
-        RiskIndicator RiskLevel
+        RiskIndicator RiskLevel,
+        string ShoppingDay,
+        string ShoppingNotes,
+        string PaymentNotes,
+        string Message
     );
 
     public class CreateResidentRequest{ //NOTE TO SELF: SHOULD I MOVE THIS OUTSIDE OF RESIDENTADMINPAGEDTO CLASS?

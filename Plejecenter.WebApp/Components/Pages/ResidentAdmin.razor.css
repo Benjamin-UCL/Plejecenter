@@ -105,3 +105,29 @@ h2 {
     font-size: 0.8rem;
     margin-top: 4px;
 }
+
+.admin-content-grid {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.admin-sidebar {
+    flex: 0 0 250px; /* Fixed width for the picker */
+}
+
+.admin-main-card {
+    flex: 1; /* Takes up all remaining space */
+    min-width: 400px;
+}
+
+.admin-log {
+    flex: 0 0 200px;
+}
+
+.button-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
