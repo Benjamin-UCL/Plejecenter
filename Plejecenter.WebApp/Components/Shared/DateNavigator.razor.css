@@ -54,3 +54,11 @@
     border-color: var(--primery-button);
 }
 
+.date-nav-glyph {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
+    font-family: system-ui, "Segoe UI", sans-serif;
+    display: inline-block;
+}
+

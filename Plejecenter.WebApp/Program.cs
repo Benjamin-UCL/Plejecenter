@@ -16,10 +16,14 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
 
 builder.Services.AddScoped<AuthHeaderHandler>();
 
-// Named HttpClient for pages/components that use IHttpClientFactory
+// Named HttpClient for pages/components that use IHttpClientFactory.
+// Docker: http://api:8080/. Lokal dotnet watch: appsettings.Development.json (typisk http://localhost:5003/).
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? "http://api:8080/";
+if (!apiBaseUrl.EndsWith('/')) apiBaseUrl += "/";
+
 builder.Services.AddHttpClient("SlottetApi", client =>
 {
-    client.BaseAddress = new Uri("http://api:8080/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler<AuthHeaderHandler>();
 
 // Default HttpClient (used by Login.razor via @inject HttpClient Http)

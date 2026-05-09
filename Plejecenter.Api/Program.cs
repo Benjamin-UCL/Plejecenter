@@ -7,6 +7,7 @@ using Plejecenter.Application.Services.Employees;
 using Plejecenter.Infrastructure.Data;
 using Plejecenter.Infrastructure.Repositories;
 using Plejecenter.Application.Services.Residents;
+using Plejecenter.Application.Services.Responsibilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IResidentService, ResidentService>();
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<IResponsibilityService, ResponsibilityService>();
+builder.Services.AddScoped<IResponsibilityRepository, ResponsibilityRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
