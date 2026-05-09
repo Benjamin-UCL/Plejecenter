@@ -1,8 +1,10 @@
-﻿@page "/login"
+@page "/login"
 @attribute [AllowAnonymous]
 @inject HttpClient Http
 @inject JwtAuthStateProvider AuthProvider
 @inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject AppState AppState
 
 <h3>Login</h3>
 
@@ -33,7 +35,36 @@
 
         var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
         await AuthProvider.Login(result!.Token);
-        Nav.NavigateTo("/");
+
+        List<DepartmentOption>? depts = null;
+        try
+        {
+            depts = await Http.GetFromJsonAsync<List<DepartmentOption>>("api/auth/me/departments");
+        }
+        catch { }
+
+        if (depts is { Count: 1 })
+        {
+            await SetDepartmentAsync(depts[0]);
+            Nav.NavigateTo("/");
+        }
+        else if (depts is { Count: > 1 })
+        {
+            AppState.PendingDepartments = depts;
+            Nav.NavigateTo("/select-department");
+        }
+        else
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+
+    private async Task SetDepartmentAsync(DepartmentOption dept)
+    {
+        AppState.SelectedDepartmentId = dept.Id;
+        AppState.SelectedDepartmentName = dept.Title;
+        await JS.InvokeVoidAsync("localStorage.setItem", "selectedDepartmentId", dept.Id.ToString());
+        await JS.InvokeVoidAsync("localStorage.setItem", "selectedDepartmentName", dept.Title);
     }
 
     private record TokenResponse(string Token);

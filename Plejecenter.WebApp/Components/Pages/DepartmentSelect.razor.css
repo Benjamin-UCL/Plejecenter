@@ -1,0 +1,59 @@
+.dept-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.dept-card {
+    background-color: var(--surface);
+    border: 1px solid var(--borders);
+    border-radius: var(--large-radius);
+    padding: 40px 48px;
+    width: 100%;
+    max-width: 460px;
+    text-align: center;
+}
+
+.dept-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primery-text);
+    margin: 0 0 8px;
+}
+
+.dept-subtitle {
+    color: var(--secondery-text);
+    margin: 0 0 32px;
+    font-size: 0.95rem;
+}
+
+.dept-empty {
+    color: var(--secondery-text);
+    font-style: italic;
+}
+
+.dept-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dept-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background-color: var(--secondery-button);
+    color: var(--primery-text);
+    border: 1px solid var(--borders);
+    border-radius: var(--mid-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.dept-btn:hover {
+    background-color: var(--primery-button);
+    border-color: var(--primery-button);
+    color: var(--inverted-text);
+}

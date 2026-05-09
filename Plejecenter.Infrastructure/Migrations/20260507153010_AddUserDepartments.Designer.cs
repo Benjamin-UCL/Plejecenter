@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Plejecenter.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Plejecenter.Infrastructure.Data;
 namespace Plejecenter.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507153010_AddUserDepartments")]
+    partial class AddUserDepartments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,63 +262,23 @@ namespace Plejecenter.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("OverlapId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Shift")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TaskDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TemplateId")
+                    b.Property<int>("OverlapId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OverlapId");
 
-                    b.HasIndex("TemplateId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Responsibilities");
-                });
-
-            modelBuilder.Entity("Plejecenter.Domain.ResponsibilityTemplate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ResponsibilityTemplates");
                 });
 
             modelBuilder.Entity("Plejecenter.Domain.ScheduleMedication", b =>
@@ -507,23 +470,19 @@ namespace Plejecenter.Infrastructure.Migrations
                 {
                     b.HasOne("Plejecenter.Domain.Overlap", "Overlap")
                         .WithMany()
-                        .HasForeignKey("OverlapId");
-
-                    b.HasOne("Plejecenter.Domain.ResponsibilityTemplate", "Template")
-                        .WithMany("Instances")
-                        .HasForeignKey("TemplateId")
+                        .HasForeignKey("OverlapId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Plejecenter.Domain.User", "AssignedUser")
+                    b.HasOne("Plejecenter.Domain.User", "User")
                         .WithMany("Responsibilities")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("AssignedUser");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Overlap");
 
-                    b.Navigation("Template");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Plejecenter.Domain.ScheduleMedication", b =>
@@ -584,11 +543,6 @@ namespace Plejecenter.Infrastructure.Migrations
                     b.Navigation("PatientTimes");
 
                     b.Navigation("ScheduleMedications");
-                });
-
-            modelBuilder.Entity("Plejecenter.Domain.ResponsibilityTemplate", b =>
-                {
-                    b.Navigation("Instances");
                 });
 
             modelBuilder.Entity("Plejecenter.Domain.User", b =>
