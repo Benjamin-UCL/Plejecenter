@@ -1,4 +1,5 @@
 :root {
+    --sidebar-gradient: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
     /*--color-bg-dark: #1a1a2e;
     --color-bg-mid: #16213e;
     --color-bg-light: #26314e;
@@ -25,6 +26,7 @@
 }
 
 [data-theme="light"] {
+    --sidebar-gradient: linear-gradient(180deg, #eef2f7 0%, #e2e8f0 72%, #dbe4ee 100%);
     --canvas: #F3F6F9;
     --surface: #FFFFFF;
     --top-bar: #2B4C7E;
@@ -58,5 +60,78 @@ a, .btn-link {
 
 main {
     background: var(--canvas);
+}
+
+/* Tema-switch (lys tilstand — høj kontrast, globale rules pga. data-theme på <html>) */
+.theme-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.theme-caption {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.theme-controls .slider {
+    box-sizing: border-box;
+}
+
+[data-theme="light"] .theme-controls input:checked + .slider {
+    background-color: #ffffff;
+    border: 2px solid #2b4c7e;
+}
+
+[data-theme="light"] .theme-controls input:checked + .slider:before {
+    background-color: #2b4c7e;
+    bottom: 2px;
+    left: 4px;
+    transform: translateX(30px);
+}
+
+[data-theme="light"] .theme-controls input:not(:checked) + .slider:before {
+    background-color: #2b4c7e;
+}
+
+[data-theme="light"] .theme-controls input:not(:checked) + .slider {
+    background-color: #eef2ff;
+    border: 1px solid #cbd5e1;
+}
+
+/* Logout bund af menu — hvid tekst i lys tema, ikke hele primær-blå blok */
+.nav-logout-footer {
+    flex: 0 0 auto;
+    padding: 0.65rem 0.85rem;
+}
+
+.nav-logout-footer .btn-logout-themed {
+    width: 100%;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--mid-radius);
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--borders);
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-logout-footer .btn-logout-themed:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+[data-theme="light"] .nav-logout-footer .btn-logout-themed {
+    background-color: #ffffff;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .nav-logout-footer .btn-logout-themed:hover {
+    border-color: #2b4c7e;
+    color: #2b4c7e;
 }
 

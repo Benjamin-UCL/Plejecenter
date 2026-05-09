@@ -4,8 +4,9 @@
     <div>App</div>
 
     @* right section *@
-    <div>
-        <label class="switch">
+    <div class="theme-controls">
+        <span class="theme-caption" aria-live="polite">@(_isLight ? "Lyst tema" : "Mørkt tema")</span>
+        <label class="switch" title="Skift lys/mørkt tema">
             <input type="checkbox" @bind="_isLight" @bind:event="onchange" />
             <span class="slider"></span>
         </label>
