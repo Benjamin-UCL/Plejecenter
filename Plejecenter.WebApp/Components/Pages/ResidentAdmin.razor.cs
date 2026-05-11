@@ -351,6 +351,24 @@ namespace Plejecenter.WebApp.Components.Pages
             }
         }
 
-        private List<String> emptyList = new(); // pro forma
-    }
-}
+        //metode til at håndterer PN sletning
+        private async Task HandlePnDeletedAsync(int ptId)
+        {
+            await SetAuthHeader();
+            
+            var resp = await http.DeleteAsync($"api/residents/patienttimes/{ptId}");
+
+            if (resp.IsSuccessStatusCode)
+            {
+                // Option A: Just reload everything (safest)
+                await LoadResidentsAsync();
+                
+                // Option B: Manually remove from local list for speed
+                currentResident.PatientTimes.RemoveAll(x => x.Id == ptId);
+                StateHasChanged();
+            }
+        }
+
+                private List<String> emptyList = new(); // pro forma
+            }
+        }

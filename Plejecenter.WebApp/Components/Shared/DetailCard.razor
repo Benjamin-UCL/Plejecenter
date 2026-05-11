@@ -76,11 +76,23 @@ else
                 </div>
 
                 <div class="pill-grid">
-                    @foreach (var pn in Resident.PatientTimes)
+                    @* @foreach (var pn in Resident.PatientTimes)
                     {
                         <label class="pill" title="@pn.Note">
                             @pn.DispensedAt.ToString("HH:mm")
                         </label>
+                    } *@
+                    @foreach (var pn in Resident.PatientTimes.OrderByDescending(x => x.DispensedAt))
+                    {
+                        <div class="pill-wrapper"> 
+                            <label class="pill" title="@pn.Note">
+                                @pn.DispensedAt.ToString("HH:mm")
+                                <button class="pill-delete-btn" 
+                                        @onclick="() => RequestDelete(pn.Id)" 
+                                        @onclick:stopPropagation="true"
+                                        type="button">×</button>
+                            </label>
+                        </div>
                     }
                 </div>
             </div>

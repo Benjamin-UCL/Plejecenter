@@ -168,4 +168,17 @@ public class ResidentsController : ControllerBase
     {
         return _db.Residents.Any(e => e.Id == id);
     }
+
+    [HttpDelete("patienttimes/{ptId}")]
+    public async Task<IActionResult> DeletePatientTime(int ptId)
+    {
+        var entry = await _db.PatientTimes.FindAsync(ptId);
+        
+        if (entry == null) return NotFound();
+
+        _db.PatientTimes.Remove(entry);
+        await _db.SaveChangesAsync();
+        
+        return NoContent();
+    }
 }

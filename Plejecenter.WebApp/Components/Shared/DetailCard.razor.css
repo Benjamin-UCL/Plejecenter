@@ -288,3 +288,26 @@
 
 /* If you want the list itself to match the header color: */
 /* .detail-card .kritisk-select option { background-color: var(--status-color); } */
+
+/* for new delete btn in PatientTimes */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    /* ... your existing pill styles ... */
+}
+
+.pill-delete-btn {
+    background: none;
+    border: none;
+    color: rgba(0,0,0,0.3);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.pill-delete-btn:hover {
+    color: #ff4d4d; /* Red on hover */
+}

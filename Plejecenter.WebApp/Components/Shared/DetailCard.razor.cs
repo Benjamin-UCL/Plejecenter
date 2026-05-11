@@ -10,6 +10,8 @@ namespace Plejecenter.WebApp.Components.Shared
         [Parameter] public EventCallback<Resident> ResidentChanged { get; set; }
         [Parameter] public EventCallback<Resident> OnSaveRequested { get; set; }
         [Parameter] public EventCallback<PatientTime> OnPnAdded { get; set; }
+        [Parameter] public EventCallback<int> OnPnDeleted { get; set; }
+
 
         private void OnMedGivenChanged(ScheduleMedication med)
         {
@@ -84,6 +86,12 @@ namespace Plejecenter.WebApp.Components.Shared
         //         await OnSaveRequested.InvokeAsync(Resident);
         //     }
         // }
+
+        // logik til at håndtere sletning af patienttider
+        private async Task RequestDelete(int ptId)
+        {
+            await OnPnDeleted.InvokeAsync(ptId);
+        }
 
 
     }
