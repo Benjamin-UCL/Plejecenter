@@ -17,16 +17,21 @@
             SelectedResidentChanged="OnResidentSelected" />
 
             <div class="button-row">
-                <button class="btn-add">Tilføj</button>
-                <button class="btn-edit">Rediger</button>
-                <button class="btn-delete">Slet</button>
+                <button class="btn-add" @onclick="OpenAddModal">Tilføj</button>
+                <button class="btn-edit" 
+                    disabled="@(selectedPickerResident == null)" 
+                    @onclick="() => HandleEditResidentAsync(selectedPickerResident!.Id)">Rediger</button>
+                <button class="btn-delete" 
+                    disabled="@(selectedPickerResident == null)" 
+                    @onclick="() => HandleDeleteResidentAsync(selectedPickerResident!.Id)">Slet</button>
             </div>
         </aside>
 
         <!-- Main Card -->
         <section class="admin-main-card">
             <DetailCard Resident="currentResident"
-                        ResidentChanged="OnDetailChanged" />
+                        ResidentChanged="OnDetailChanged"
+                        OnSaveRequested="SaveResidentDetailsAsync" />
         </section>
 
         <!-- Log -->

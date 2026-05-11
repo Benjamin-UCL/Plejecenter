@@ -243,25 +243,76 @@ namespace Plejecenter.WebApp.Components.Pages
 
         }
 
+        //Den metode er for at tilføje en ny beboer, og den åbner modalen med tomme felter
+        private void OpenAddModal()
+        {
+            editingId = 0; // Reset ID to indicate a NEW resident
+            editingResident = new ResidentAdminPageDTO.UpdateResidentRequest
+            {
+                Status = "Aktiv" // Default values
+            };
+            showEditModal = true;
+        }
+
         private async Task SaveEditAsync()
         {
-            Console.WriteLine("Gemmer...");
-            // kalder PUT endpointet
             await SetAuthHeader();
+            HttpResponseMessage resp;
 
-            var resp = await http.PutAsJsonAsync($"api/residents/{editingId}", editingResident);
+            if (editingId == 0) 
+            {
+                // CREATE NEW
+                resp = await http.PostAsJsonAsync("api/residents", editingResident);
+            }
+            else 
+            {
+                // UPDATE EXISTING
+                resp = await http.PutAsJsonAsync($"api/residents/{editingId}", editingResident);
+            }
 
             if (resp.IsSuccessStatusCode)
             {
                 showEditModal = false;
-                await LoadResidentsAsync(); // Refresh list
+                await LoadResidentsAsync(); // Refresh the list and picker
             }
             else
             {
-                // var errorMsg = await resp.Content.ReadAsStringAsync();
-                // Console.WriteLine($"Kunne ikke opdatere: {errorMsg}");
-                var errorDetail = await resp.Content.ReadAsStringAsync();
-                Console.WriteLine($"Kritiske detaljer fra API: {errorDetail}");
+                var error = await resp.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error saving: {error}");
+            }
+        }
+
+
+        private async Task SaveResidentDetailsAsync(Resident updatedResident)
+        {
+        try 
+            {
+                await SetAuthHeader();
+
+                var request = new ResidentAdminPageDTO.UpdateResidentRequest
+                {
+                    Id = updatedResident.Id,
+                    FirstName = updatedResident.FirstName,
+                    LastName = updatedResident.LastName,
+                    Status = updatedResident.RiskLevel.ToString(),
+                    RiskLevel = updatedResident.RiskLevel,
+                    ShoppingDay = updatedResident.ShoppingDay ?? "",
+                    ShoppingNotes = updatedResident.ShoppingNotes ?? "",
+                    PaymentNotes = updatedResident.PaymentNotes ?? "",
+                    Message = updatedResident.Message ?? ""
+                };
+
+                var resp = await http.PutAsJsonAsync($"api/residents/{updatedResident.Id}", request);
+                
+                if (resp.IsSuccessStatusCode)
+                {
+                    await LoadResidentsAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Now the site won't freeze! It just logs the error.
+                Console.WriteLine($"Critical error during save: {ex.Message}");
             }
         }
 

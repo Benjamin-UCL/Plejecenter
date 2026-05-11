@@ -8,7 +8,7 @@ namespace Plejecenter.Shared.Enums;
 
 public enum RiskIndicator
 {
-        Low,
-        Middle,
-        High
+        Low = 1,
+        Middle = 2,
+        High = 3
 }

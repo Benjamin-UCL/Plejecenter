@@ -8,6 +8,7 @@ namespace Plejecenter.WebApp.Components.Shared
     {
         [Parameter] public Resident? Resident { get; set; }
         [Parameter] public EventCallback<Resident> ResidentChanged { get; set; }
+        [Parameter] public EventCallback<Resident> OnSaveRequested { get; set; }
 
         private void OnMedGivenChanged(ScheduleMedication med)
         {
@@ -37,9 +38,11 @@ namespace Plejecenter.WebApp.Components.Shared
         private async Task OnStatusChanged(ChangeEventArgs e)
         {
             if (Resident is null) return;
-            if (Enum.TryParse<RiskIndicator>(e.Value?.ToString(), out var parsed))
+            if (Enum.TryParse<RiskIndicator>(e.Value?.ToString(), out var newRisk))
             {
-                Resident.Status = parsed.ToString();
+                Resident.RiskLevel = newRisk;
+                // If you want to keep the string 'Status' in sync for the API:
+                Resident.Status = newRisk.ToString();
                 await ResidentChanged.InvokeAsync(Resident);
             }
         }
@@ -58,6 +61,25 @@ namespace Plejecenter.WebApp.Components.Shared
                 Note = string.Empty
             });
         }
+
+        //logik til at gemme ændringer i detaljekortet
+        private async Task HandleSaveClick()
+        {
+            // We pass the current resident object back to the parent to handle the API call
+            await OnSaveRequested.InvokeAsync(Resident);
+        }
+
+        // // Optional: If you want the status dropdown to save INSTANTLY without the button
+        // private async Task OnStatusChanged(ChangeEventArgs e)
+        // {
+        //     if (Enum.TryParse<RiskIndicator>(e.Value?.ToString(), out var newStatus))
+        //     {
+        //         Resident.Status = newStatus;
+        //         // Trigger the same save logic immediately
+        //         await OnSaveRequested.InvokeAsync(Resident);
+        //     }
+        // }
+
 
     }
 }

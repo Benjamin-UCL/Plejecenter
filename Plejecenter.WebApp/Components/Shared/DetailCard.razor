@@ -16,7 +16,7 @@ else
             <h2>@Resident.FirstName @Resident.LastName</h2>
             <div class="kritisk-wrap @StatusClass">
                 <select class="kritisk-select"
-                        value="@Resident.Status"
+                        value="@Resident.RiskLevel"
                         @onchange="OnStatusChanged"
                         aria-label="Status">
                     <option value="@RiskIndicator.High">Kritisk</option>
@@ -132,7 +132,17 @@ else
                 </textarea>
                         </div>
 
-                    </div>
+        </div>
 
-                </div>
-            }
+        <div class="detail-body">
+            @* ... all your existing sections ... *@
+
+            <div class="detail-actions">
+                <button class="btn-save-detail" @onclick="HandleSaveClick">
+                    Gem ændringer
+                </button>
+            </div>
+        </div>
+
+    </div>
+}
