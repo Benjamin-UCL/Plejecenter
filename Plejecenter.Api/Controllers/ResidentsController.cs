@@ -24,10 +24,43 @@ public class ResidentsController : ControllerBase
         _db = db;
     }
 
-    [HttpGet] // Get All
-    public async Task<ActionResult<IEnumerable<Resident>>> GetAll()
+    // [HttpGet] // Get All
+    // public async Task<ActionResult<IEnumerable<Resident>>> GetAll()
+    // {
+    //     // You MUST use .Include() or the list will be empty every time you reload
+    //     return await _db.Residents
+    //         .Include(r => r.PatientTimes)
+    //         .Include(r => r.ScheduleMedications) // Do this for medications too
+    //         .ToListAsync();
+    // }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ResidentAdminPageDTO.ResidentDto>>> GetAll()
     {
-        return await _db.Residents.ToListAsync();
+        var residents = await _db.Residents
+            .Include(r => r.PatientTimes)
+            .Include(r => r.ScheduleMedications)
+            .ToListAsync();
+
+        return residents.Select(r => new ResidentAdminPageDTO.ResidentDto(
+            r.Id,
+            r.FirstName,
+            r.LastName,
+            r.Alias,
+            r.Apartment,
+            r.Status,
+            r.RiskLevel,
+            r.ShoppingDay,
+            r.ShoppingNotes,
+            r.PaymentNotes,
+            r.Message,
+            r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+            {
+                Id = pt.Id,
+                DispensedAt = pt.DispensedAt,
+                Note = pt.Note
+            }).ToList()
+        )).ToList();
     }
 
     [HttpGet("{id}")] // Get By Id
@@ -98,6 +131,22 @@ public class ResidentsController : ControllerBase
         await _db.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetById), new { id = newResident.Id }, newResident);
+    }
+
+    [HttpPost("{id}/patienttimes")]
+    public async Task<IActionResult> AddPatientTime(int id, PatientTime entry)
+    {
+        var resident = await _db.Residents
+            .Include(r => r.PatientTimes)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (resident == null) return NotFound();
+
+        // Ensure the entry is linked to this resident
+        resident.PatientTimes.Add(entry);
+        
+        await _db.SaveChangesAsync();
+        return Ok();
     }
 
     [HttpDelete("{id}")] // Delete

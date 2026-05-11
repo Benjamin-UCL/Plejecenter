@@ -9,6 +9,7 @@ namespace Plejecenter.WebApp.Components.Shared
         [Parameter] public Resident? Resident { get; set; }
         [Parameter] public EventCallback<Resident> ResidentChanged { get; set; }
         [Parameter] public EventCallback<Resident> OnSaveRequested { get; set; }
+        [Parameter] public EventCallback<PatientTime> OnPnAdded { get; set; }
 
         private void OnMedGivenChanged(ScheduleMedication med)
         {
@@ -53,13 +54,17 @@ namespace Plejecenter.WebApp.Components.Shared
         ? last.DispensedAt + last.TimeBetweenDosis.ToTimeSpan()
         : null;
 
-        private void AddPnEntry()
+        private async Task AddPnEntry()
         {
-            Resident?.PatientTimes.Add(new PatientTime
+            var newEntry = new PatientTime
             {
                 DispensedAt = DateTime.Now,
-                Note = string.Empty
-            });
+                Note = "Givet via Administration",
+                // MedicationDosage = ... (you might need to select this later)
+            };
+
+            // Tell the parent to save this to the database
+            await OnPnAdded.InvokeAsync(newEntry);
         }
 
         //logik til at gemme ændringer i detaljekortet

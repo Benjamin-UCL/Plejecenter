@@ -113,7 +113,13 @@ namespace Plejecenter.WebApp.Components.Pages
                     ShoppingDay = dto.ShoppingDay,
                     ShoppingNotes = dto.ShoppingNotes,
                     PaymentNotes = dto.PaymentNotes,
-                    Message = dto.Message
+                    Message = dto.Message,
+                    PatientTimes = dto.PatientTimes.Select(pt => new PatientTime
+                    {
+                        Id = pt.Id,
+                        DispensedAt = pt.DispensedAt,
+                        Note = pt.Note
+                    }).ToList()
                 };
             }
         }   
@@ -313,6 +319,35 @@ namespace Plejecenter.WebApp.Components.Pages
             {
                 // Now the site won't freeze! It just logs the error.
                 Console.WriteLine($"Critical error during save: {ex.Message}");
+            }
+        }
+
+        //metode til at håndterer PN tilføjelse
+        private async Task HandlePnAddedAsync(PatientTime newEntry)
+        {
+            if (currentResident == null) return;
+
+            await SetAuthHeader();
+
+            // Now this URL will match the new method we added to the controller
+            var resp = await http.PostAsJsonAsync($"api/residents/{currentResident.Id}/patienttimes", newEntry);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                // 1. Reload the master list from the API
+                await LoadResidentsAsync(); 
+                
+                // 2. IMPORTANT: Re-link currentResident to the updated DTO from the list
+                var updatedDto = residents.FirstOrDefault(r => r.Id == currentResident.Id);
+                if (updatedDto != null)
+                {
+                    // This triggers the DetailCard to re-render with the new data
+                    OnResidentSelected(pickerResidents.FirstOrDefault(p => p.Id == updatedDto.Id));
+                }
+            }
+            else
+            {
+                Console.WriteLine("Kunne ikke gemme PN tid.");
             }
         }
 

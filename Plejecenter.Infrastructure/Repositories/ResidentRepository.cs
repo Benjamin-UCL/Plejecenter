@@ -40,7 +40,14 @@ public class ResidentRepository : IResidentRepository
                 r.ShoppingDay,
                 r.ShoppingNotes,
                 r.PaymentNotes,
-                r.Message))
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList()
+                ))
             .ToListAsync();
     }
 
@@ -60,7 +67,13 @@ public class ResidentRepository : IResidentRepository
                 r.ShoppingDay,
                 r.ShoppingNotes,
                 r.PaymentNotes,
-                r.Message
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList()
                 );
     }
 
@@ -90,7 +103,13 @@ public class ResidentRepository : IResidentRepository
                 r.ShoppingDay,
                 r.ShoppingNotes,
                 r.PaymentNotes,
-                r.Message
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList()
             );
     }
 

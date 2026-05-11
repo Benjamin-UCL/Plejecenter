@@ -5,6 +5,13 @@ namespace Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 public class ResidentAdminPageDTO
 {
+    public class PatientTimeDto
+    {
+        public int Id { get; set; }
+        public DateTime DispensedAt { get; set; }
+        public string Note { get; set; } = string.Empty;
+    }
+
     public record ResidentDto(
         int Id,
         string FirstName,
@@ -16,16 +23,12 @@ public class ResidentAdminPageDTO
         string ShoppingDay,
         string ShoppingNotes,
         string PaymentNotes,
-        string Message
+        string Message,
+        List<PatientTimeDto> PatientTimes
     );
 
-    public class CreateResidentRequest{ //NOTE TO SELF: SHOULD I MOVE THIS OUTSIDE OF RESIDENTADMINPAGEDTO CLASS?
-        // string FirstName,
-        // string LastName,
-        // string Alias,
-        // int SocialSecurityNumber,
-        // int Apartment,
-        // string Status
+    public class CreateResidentRequest
+    {
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string Alias { get; set; } = "";
@@ -36,17 +39,6 @@ public class ResidentAdminPageDTO
 
     public class UpdateResidentRequest
     {
-        // string FirstName,
-        // string LastName,
-        // string Alias,
-        // int Apartment,
-        // string Status,
-        // string ShoppingDay,
-        // string PaymentMethod,
-        // string ShoppingNotes,
-        // string PaymentNotes,
-        // string Message,
-        // RiskIndicator RiskLevel
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Fornavn er påkrævet")]
@@ -71,6 +63,7 @@ public class ResidentAdminPageDTO
         public string PaymentNotes { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public RiskIndicator RiskLevel { get; set; }
+        public List<PatientTimeDto> PatientTimes { get; set; } = new();
     }   
     public record SetResidentActiveRequest(string Status); 
 }
