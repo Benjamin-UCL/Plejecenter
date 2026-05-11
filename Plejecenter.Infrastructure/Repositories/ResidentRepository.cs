@@ -28,6 +28,7 @@ public class ResidentRepository : IResidentRepository
         }
 
         return await q
+            .AsSplitQuery() // siger til EF at hente collections i separate queries, hvilket kan forbedre performance når der er mange records
             .OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
             .Select(r => new ResidentAdminPageDTO.ResidentDto(
                 r.Id, 
@@ -46,6 +47,12 @@ public class ResidentRepository : IResidentRepository
                     Id = pt.Id,
                     DispensedAt = pt.DispensedAt,
                     Note = pt.Note
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
                 }).ToList()
                 ))
             .ToListAsync();
@@ -73,6 +80,12 @@ public class ResidentRepository : IResidentRepository
                     Id = pt.Id,
                     DispensedAt = pt.DispensedAt,
                     Note = pt.Note
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
                 }).ToList()
                 );
     }
@@ -109,7 +122,13 @@ public class ResidentRepository : IResidentRepository
                     Id = pt.Id,
                     DispensedAt = pt.DispensedAt,
                     Note = pt.Note
-                }).ToList()
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
+                }).ToList()                
             );
     }
 

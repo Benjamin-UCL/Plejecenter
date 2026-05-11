@@ -59,7 +59,14 @@ public class ResidentsController : ControllerBase
                 Id = pt.Id,
                 DispensedAt = pt.DispensedAt,
                 Note = pt.Note
-            }).ToList()
+            }).ToList(),
+            r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+        {
+            Id = sm.Id,
+            DispenseAt = sm.DispenseAt,
+            IsGiven = sm.IsGiven
+        }).ToList()
+            
         )).ToList();
     }
 
@@ -147,6 +154,51 @@ public class ResidentsController : ControllerBase
         
         await _db.SaveChangesAsync();
         return Ok();
+    }
+
+    //til Medcin håndtering i detailcard
+    [HttpPost("{id}/medication")]
+    public async Task<IActionResult> AddScheduledMedication(int id, [FromBody] DateTime time)
+    {
+        var resident = await _db.Residents
+            .Include(r => r.ScheduleMedications)
+            .FirstOrDefaultAsync(r => r.Id == id);
+            
+        if (resident == null) return NotFound();
+
+        // GET A VALID DOSAGE: 
+        // We fetch the first available dosage from the database so the FK constraint is happy.
+        var defaultDosage = await _db.MedicationsDosages.FirstOrDefaultAsync();
+
+        if (defaultDosage == null)
+        {
+            var tempMed = new Medication { PrepName = "Test Medicin" };
+            defaultDosage = new MedicationDosage { Dosage = "1 stk", Medication = tempMed };
+            _db.MedicationsDosages.Add(defaultDosage);
+            await _db.SaveChangesAsync();
+            // return BadRequest("Ingen medicindoseringer fundet i databasen. Opret venligst en medicin først.");
+        }
+
+        resident.ScheduleMedications.Add(new ScheduleMedication
+        {
+            DispenseAt = time,
+            IsGiven = false,
+            MedicationDosage = defaultDosage // This satisfies the Foreign Key requirement!
+        });
+
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpDelete("medication/{medId}")]
+    public async Task<IActionResult> DeleteScheduledMedication(int medId)
+    {
+        var item = await _db.ScheduleMedications.FindAsync(medId);
+        if (item == null) return NotFound();
+
+        _db.ScheduleMedications.Remove(item);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 
     [HttpDelete("{id}")] // Delete

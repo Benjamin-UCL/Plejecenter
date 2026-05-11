@@ -12,6 +12,13 @@ public class ResidentAdminPageDTO
         public string Note { get; set; } = string.Empty;
     }
 
+    public class ScheduleMedicationDto
+    {
+        public int Id  { get; set; }
+        public DateTime DispenseAt { get; set; }
+        public bool IsGiven { get; set; }
+    }
+
     public record ResidentDto(
         int Id,
         string FirstName,
@@ -24,7 +31,8 @@ public class ResidentAdminPageDTO
         string ShoppingNotes,
         string PaymentNotes,
         string Message,
-        List<PatientTimeDto> PatientTimes
+        List<PatientTimeDto> PatientTimes,
+        List<ScheduleMedicationDto> ScheduleMedications
     );
 
     public class CreateResidentRequest
@@ -64,6 +72,7 @@ public class ResidentAdminPageDTO
         public string Message { get; set; } = string.Empty;
         public RiskIndicator RiskLevel { get; set; }
         public List<PatientTimeDto> PatientTimes { get; set; } = new();
+        public List<ScheduleMedicationDto> ScheduleMedications { get; set; } = new();
     }   
     public record SetResidentActiveRequest(string Status); 
 }

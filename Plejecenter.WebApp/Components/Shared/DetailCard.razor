@@ -29,20 +29,55 @@ else
         <div class="detail-body">
 
             <!-- MEDICIN -->
-            <div>
+            @* <div>
                 <div class="section-label">Medicin</div>
                 <div class="pill-grid">
-                    @foreach (var med in Resident.ScheduleMedications)
-                    {
-                        <label class="pill @(med.DispenseAt < DateTime.Now ? "pill-checked" : "")">
+                    @foreach (var med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
+                    {                        
+                        <label class="pill @(med.IsGiven ? "pill-checked" : "")">
                             <input type="checkbox"
-                                   checked="@(med.DispenseAt < DateTime.Now)"
-                                   @onchange="() => OnMedGivenChanged(med)" />
+                                checked="@med.IsGiven"
+                                @onchange="() => OnMedGivenChanged(med)" />
                             @med.DispenseAt.ToString("HH:mm")
                         </label>
                     }
                 </div>
+            </div> *@
+
+        <div>
+            <div class="section-header" style="display: flex; align-items: center; gap: 10px;">
+                <div class="section-label">Medicin</div>
+                <button class="icon-btn small-green" @onclick="ToggleAddMedMode" type="button">+</button>
             </div>
+
+            @if (isAddingMed)
+            {
+                <div class="add-med-row" style="margin-bottom: 10px; display: flex; gap: 5px; align-items: center;">
+                    <input type="time" @bind="newMedTime" class="form-control-sm" />
+                    <button class="btn btn-success btn-sm" @onclick="SaveNewMedTime" type="button">Gem</button>
+                    <button class="btn btn-secondary btn-sm" @onclick="ToggleAddMedMode" type="button">Annuller</button>
+                </div>
+            }
+
+            <div class="pill-grid">
+                <div class="section-label">Medicin (@Resident.ScheduleMedications.Count)</div>
+                @foreach (var med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
+                {
+                    <label class="pill @(med.IsGiven ? "pill-checked" : "")">
+                        <input type="checkbox"
+                                checked="@med.IsGiven"
+                                @onchange="() => OnMedGivenChanged(med)" />
+                        @med.DispenseAt.ToString("HH:mm")
+                        
+                        @* Delete button for the schedule item *@
+                        <button class="pill-delete-btn" 
+                                @onclick="() => RequestDeleteMed(med.Id)" 
+                                @onclick:stopPropagation="true" 
+                                type="button">×</button>
+                    </label>
+                }
+            </div>
+        </div>           
 
             <hr class="section-divider" />
 

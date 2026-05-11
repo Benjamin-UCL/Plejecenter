@@ -11,12 +11,25 @@ namespace Plejecenter.WebApp.Components.Shared
         [Parameter] public EventCallback<Resident> OnSaveRequested { get; set; }
         [Parameter] public EventCallback<PatientTime> OnPnAdded { get; set; }
         [Parameter] public EventCallback<int> OnPnDeleted { get; set; }
+        [Parameter] public EventCallback<ScheduleMedication> OnMedicationToggled { get; set; }
+
+        //til medicin ting
+        [Parameter] public EventCallback<DateTime> OnMedScheduleAdded { get; set; }
+        [Parameter] public EventCallback<int> OnMedScheduleDeleted { get; set; }
+
+        private void ToggleAddMedMode() => isAddingMed = !isAddingMed;
+
+        private bool isAddingMed = false;
+        private DateTime newMedTime = DateTime.Today.AddHours(8); // Default to 8 AM
 
 
-        private void OnMedGivenChanged(ScheduleMedication med)
+        private async Task OnMedGivenChanged(ScheduleMedication med)
         {
-            // TODO: call API to register medication as given
-            // e.g. await ApiService.RegisterMedGivenAsync(med.Id, DateTime.Now);
+            // Toggle the status
+            med.IsGiven = !med.IsGiven;
+            
+            // Send it up to the parent to save to the database
+            await OnMedicationToggled.InvokeAsync(med);
         }
 
         private string StatusClass
@@ -91,6 +104,17 @@ namespace Plejecenter.WebApp.Components.Shared
         private async Task RequestDelete(int ptId)
         {
             await OnPnDeleted.InvokeAsync(ptId);
+        }
+
+        private async Task SaveNewMedTime()
+        {
+            await OnMedScheduleAdded.InvokeAsync(newMedTime);
+            isAddingMed = false;
+        }
+
+        private async Task RequestDeleteMed(int id)
+        {
+            await OnMedScheduleDeleted.InvokeAsync(id);
         }
 
 

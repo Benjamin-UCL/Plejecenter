@@ -119,6 +119,12 @@ namespace Plejecenter.WebApp.Components.Pages
                         Id = pt.Id,
                         DispensedAt = pt.DispensedAt,
                         Note = pt.Note
+                    }).ToList(),
+                    ScheduleMedications = dto.ScheduleMedications.Select(sm => new ScheduleMedication
+                    {
+                        Id = sm.Id,
+                        DispenseAt = sm.DispenseAt,
+                        IsGiven = sm.IsGiven
                     }).ToList()
                 };
             }
@@ -369,6 +375,61 @@ namespace Plejecenter.WebApp.Components.Pages
             }
         }
 
-                private List<String> emptyList = new(); // pro forma
+        private async Task HandleMedicationToggledAsync(ScheduleMedication med)
+        {
+            await SetAuthHeader();
+            
+            // We can create a specific endpoint for this or reuse an update endpoint
+            var resp = await http.PutAsJsonAsync($"api/residents/medication/{med.Id}/toggle", med.IsGiven);
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                // If it fails, flip it back in the UI so the user knows it didn't save
+                med.IsGiven = !med.IsGiven;
+                StateHasChanged();
             }
         }
+
+        private async Task HandleMedAddedAsync(DateTime time)
+        {
+            if (currentResident == null) return;
+                await SetAuthHeader();
+
+                var resp = await http.PostAsJsonAsync($"api/residents/{currentResident.Id}/medication", time);
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    await LoadResidentsAsync(); // Fetch from DB
+                    
+                    // Re-assign the current resident to the one found in the new list
+                    var updated = residents.FirstOrDefault(r => r.Id == currentResident.Id);
+                    if (updated != null)
+                    {
+                        // This forces the DetailCard to see the new ScheduleMedications list
+                        OnResidentSelected(pickerResidents.FirstOrDefault(p => p.Id == updated.Id));
+                    }
+                }
+                else 
+                {
+                    // Add this so you can see the error in the browser console
+                    var error = await resp.Content.ReadAsStringAsync();
+                    Console.WriteLine($"API Error: {error}");
+                }
+        }
+
+        private async Task HandleMedDeletedAsync(int medId)
+        {
+            await SetAuthHeader();
+            
+            var resp = await http.DeleteAsync($"api/residents/medication/{medId}");
+
+            if (resp.IsSuccessStatusCode)
+            {
+                await LoadResidentsAsync(); // Refresh data
+                StateHasChanged();
+            }
+        }       
+
+
+    }
+}
