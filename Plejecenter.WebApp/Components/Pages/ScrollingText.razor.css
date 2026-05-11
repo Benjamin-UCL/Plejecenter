@@ -1,0 +1,19 @@
+﻿.rulletekst-table {
+    width: 700px;
+}
+
+    .rulletekst-table th:nth-child(1),
+    .rulletekst-table td:nth-child(1) {
+        width: 400px;
+    }
+
+    .rulletekst-table th:nth-child(2),
+    .rulletekst-table td:nth-child(2) {
+        width: 120px;
+        text-align: center;
+    }
+
+    .rulletekst-table th:nth-child(3),
+    .rulletekst-table td:nth-child(3) {
+        width: 180px;
+    }

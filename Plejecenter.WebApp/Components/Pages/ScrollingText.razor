@@ -1,0 +1,81 @@
+﻿@page "/Rulletekst"
+
+<h3>Rulletekst</h3>
+
+<button class="btn btn-primary mb-3" @onclick="CreateNew"> Opret ny rulletekst</button>
+
+<table class="table table-dark align-middle rulletekst-table">
+	<thead> 
+		<tr>
+			<th>Tekst</th>
+			<th>Aktiv</th>
+			<th>Handlinger</th>
+		</tr>
+	</thead>			
+
+	<tbody>
+		@foreach (var entry in Entries) // Loop through the entries and display them in the table
+		{
+			<tr>
+				<td>@entry.Text</td>
+				<td>@entry.IsActive</td>
+				<td>
+					<button class="btn btn-sm btn-secondary" @onclick="() => EditEntry(entry.Id)">Rediger</button>
+					<button class="btn btn-sm btn-danger" @onclick="() => DeleteEntry(entry.Id)">Slet</button>
+				</td>
+			</tr>
+		}
+
+	</tbody>
+
+</table>
+
+
+
+@code {
+
+	private List<ScrollingTextEntry> Entries { get; set; } = new();
+
+	protected override void OnInitialized()
+	{
+		// Dummy data until API/service is ready
+
+		Entries = new List<ScrollingTextEntry>
+		{
+			new ScrollingTextEntry { Id = 1, Text = "HUSK MEDICIN", IsActive = true },
+			new ScrollingTextEntry { Id = 2, Text = "HUSK RISIKOVURDERING", IsActive = false },
+			new ScrollingTextEntry { Id = 3, Text = "HUSK SUNDHEDSPLANER", IsActive = true }
+		};
+	}
+
+	private void CreateNew()
+	{
+		// Navigate to creation page or open a modal for creating a new entry
+
+		Entries.Add(new ScrollingTextEntry { Id = Entries.Count + 1, Text = "NY RULLETEKST", IsActive = true });
+	}
+
+	private void EditEntry(int id)
+	{
+		// Navigate to edit page or open a modal for editing the entry with the specified id
+	}
+
+	private void DeleteEntry(int id)
+	{
+		// Remove the entry with the specified id from the list
+		//var resp = await http.DeleteAsync($"api/residents/{id}");
+
+		var entryToRemove = Entries.FirstOrDefault(e => e.Id == id);
+		if (entryToRemove != null)
+		{
+			Entries.Remove(entryToRemove);
+		}
+	}
+
+	public class ScrollingTextEntry 
+	{
+		public int Id { get; set; }
+		public string Text { get; set; } = "";
+		public bool IsActive { get; set; }
+	}
+}
