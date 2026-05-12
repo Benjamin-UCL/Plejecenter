@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
 namespace Plejecenter.WebApp.Providers;
@@ -6,10 +5,12 @@ namespace Plejecenter.WebApp.Providers;
 public class AuthHeaderHandler : DelegatingHandler
 {
     private readonly IJSRuntime _js;
+    private readonly JwtAuthStateProvider _authStateProvider;
 
-    public AuthHeaderHandler(IJSRuntime js)
+    public AuthHeaderHandler(IJSRuntime js, JwtAuthStateProvider authStateProvider)
     {
         _js = js;
+        _authStateProvider = authStateProvider;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -30,6 +31,13 @@ public class AuthHeaderHandler : DelegatingHandler
             request.Headers.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        return await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            try { await _authStateProvider.Logout(); } catch { }
+        }
+
+        return response;
     }
 }

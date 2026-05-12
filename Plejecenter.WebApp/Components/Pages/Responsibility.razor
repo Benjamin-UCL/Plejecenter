@@ -1,0 +1,120 @@
+﻿@page "/responsibility"
+@using Plejecenter.Domain 
+@using Plejecenter.WebApp.Components.Shared
+
+<PageTitle>Ansvarsopgaver</PageTitle>
+
+@if (isUnauthorized)
+{
+    <RedirectToLogin />
+}
+else
+{
+@* ============================================================
+   SIDE: Responsibility (/responseability)
+   FORMÅL: Administration af ansvar/opgaver pr. dato + vagt.
+   ============================================================ *@
+
+<div class="header-container">
+    <h2>Administration af Ansvar og Opgaver</h2>
+</div>
+
+@* --- Dato-navigation (genbrugelig komponent: DateNavigator) --- *@
+<DateNavigator Date="currentDate" DateChanged="OnDateChanged" />
+
+@* --- Vagt-tabs (genbrugelig komponent: ShiftSelector) --- *@
+<ShiftSelector Value="activeShift" ValueChanged="SetShift">
+    <RightContent>
+        <button class="btn-add vagt-add-button" type="button" @onclick="ToggleAddForm">
+            <span class="add-glyph" aria-hidden="true">+</span> Tilføj Ansvar
+        </button>
+    </RightContent>
+</ShiftSelector>
+
+@* --- Skriv opgave panel (toggle)--- *@
+@if (isAddFormVisible)
+{
+    <div class="add-form-container">
+        <input type="text" class="input-task" placeholder="Skriv en ny opgave..." @bind="newTaskName" />
+        
+        <div class="form-actions">
+            <button class="btn-save" @onclick="SaveTask">Tilføj</button>
+            <button class="btn-cancel" @onclick="CancelAdd">Annuller</button>
+        </div>
+    </div>
+}
+
+@* --- Opgaveliste --- *@
+<section class="list-section">
+    <div class="table-scroll-container">
+        <table class="worker-table">
+            <thead>
+                <tr>
+                    <th class="col-id">#</th>
+                    <th class="col-name">Opgave</th>
+                    <th class="col-worker">Medarbejder</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-actions">Handlinger</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!string.IsNullOrEmpty(loadError))
+                {
+                    <tr><td colspan="5" class="text-center">@loadError</td></tr>
+                }
+                else if (currentTasks == null || currentTasks.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center">Ingen opgaver endnu.</td></tr>
+                }
+                else
+                {
+                    @foreach (var task in currentTasks)
+                    {                        
+                        int index = currentTasks.IndexOf(task);
+                        
+                        <tr>
+                            <td>@(index + 1)</td> 
+                            <td>@task.Title</td> 
+                            <td class="text-center">
+                                <EmployeeSelect Value="task.UserId"
+                                                ValueChanged="@(async v => await OnUserChanged(task, v))"
+                                                Employees="employees"
+                                                Class="employee-dropdown" />
+                            </td>
+                            <td class="text-center col-status-cell">
+                                @* Samme toggle som Synlighed på EmployePage – følger dag/nat via CSS-variabler *@
+                                <ToggleSwitch Value="task.IsCompleted"
+                                              ValueChanged="@(async v => await OnCompletedChanged(task, v))" />
+                            </td>
+                            <td>
+                                <div class="icon-actions">
+                                    <button class="btn-icon btn-move" type="button"
+                                            title="Flyt op"
+                                            aria-label="Flyt op"
+                                            disabled="@(index == 0)"
+                                            @onclick="() => MoveTaskUp(task)">
+                                        <span class="task-move-glyph" aria-hidden="true">&#8593;</span>
+                                    </button>
+                                    <button class="btn-icon btn-move" type="button"
+                                            title="Flyt ned"
+                                            aria-label="Flyt ned"
+                                            disabled="@(index == currentTasks.Count - 1)"
+                                            @onclick="() => MoveTaskDown(task)">
+                                        <span class="task-move-glyph" aria-hidden="true">&#8595;</span>
+                                    </button>
+                                    <button class="btn-icon btn-delete-icon" type="button"
+                                            title="Slet opgave"
+                                            aria-label="Slet opgave"
+                                            @onclick="() => DeleteTask(task)">
+                                        <span class="task-delete-glyph" aria-hidden="true">&#215;</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+}

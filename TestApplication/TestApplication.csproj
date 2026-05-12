@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Plejecenter.Domain\Plejecenter.Domain.csproj" />
+    <ProjectReference Include="..\Plejecenter.Infrastructure\Plejecenter.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

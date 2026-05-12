@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Globalization;
 
 namespace Plejecenter.WebApp.Providers;
 
@@ -23,6 +24,20 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
                 return Anonymous;
 
             var claims = ParseClaimsFromJwt(token);
+
+            // Hvis token er udløbet, så rydder vi den, så UI ikke "tror" man er logget ind.
+            // JWT exp er Unix time seconds.
+            var exp = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+            if (exp is not null && long.TryParse(exp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var expSeconds))
+            {
+                var expUtc = DateTimeOffset.FromUnixTimeSeconds(expSeconds);
+                if (DateTimeOffset.UtcNow >= expUtc)
+                {
+                    await Logout();
+                    return Anonymous;
+                }
+            }
+
             var identity = new ClaimsIdentity(claims, "jwt");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
@@ -44,6 +59,8 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
     public async Task Logout()
     {
         await _js.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        await _js.InvokeVoidAsync("localStorage.removeItem", "selectedDepartmentId");
+        await _js.InvokeVoidAsync("localStorage.removeItem", "selectedDepartmentName");
         NotifyAuthenticationStateChanged(Task.FromResult(Anonymous));
     }
 

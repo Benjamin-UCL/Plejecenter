@@ -16,7 +16,7 @@
     <div class="cal-popover" role="dialog" aria-modal="true" aria-label="Vælg dato" @onclick:stopPropagation="true">
         <div class="cal-header">
             <button class="cal-nav" type="button" @onclick="PrevMonth" aria-label="Forrige måned">
-                <span class="bi bi-chevron-left" aria-hidden="true"></span>
+                <span class="cal-nav-glyph" aria-hidden="true">&lt;</span>
             </button>
 
             <div class="cal-title">
@@ -24,7 +24,7 @@
             </div>
 
             <button class="cal-nav" type="button" @onclick="NextMonth" aria-label="Næste måned">
-                <span class="bi bi-chevron-right" aria-hidden="true"></span>
+                <span class="cal-nav-glyph" aria-hidden="true">&gt;</span>
             </button>
         </div>
 

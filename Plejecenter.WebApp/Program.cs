@@ -3,6 +3,7 @@ using Plejecenter.WebApp.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Plejecenter.WebApp.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +17,30 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
 
 builder.Services.AddScoped<AuthHeaderHandler>();
 
-// Named HttpClient for pages/components that use IHttpClientFactory
+// Named HttpClient for pages/components that use IHttpClientFactory.
+// Docker: http://api:8080/. Lokal dotnet watch: appsettings.Development.json (typisk http://localhost:5003/).
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? "http://api:8080/";
+if (!apiBaseUrl.EndsWith('/')) apiBaseUrl += "/";
+
 builder.Services.AddHttpClient("SlottetApi", client =>
 {
-    client.BaseAddress = new Uri("http://api:8080/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler<AuthHeaderHandler>();
 
-// Default HttpClient (used by Login.razor via @inject HttpClient Http)
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("SlottetApi"));
+// Default HttpClient (@inject HttpClient) is created directly from the circuit scope so that
+// AuthHeaderHandler gets the real circuit-aware IJSRuntime. IHttpClientFactory creates handlers
+// in its own internal scope, giving an UnsupportedJavaScriptRuntime that silently swallows every
+// localStorage call and never attaches the Bearer token.
+builder.Services.AddScoped(sp =>
+{
+    var handler = new AuthHeaderHandler(
+        sp.GetRequiredService<IJSRuntime>(),
+        sp.GetRequiredService<JwtAuthStateProvider>())
+    {
+        InnerHandler = new HttpClientHandler()
+    };
+    return new HttpClient(handler) { BaseAddress = new Uri("http://api:8080/") };
+});
 
 builder.Services.AddScoped<AppState>();
 

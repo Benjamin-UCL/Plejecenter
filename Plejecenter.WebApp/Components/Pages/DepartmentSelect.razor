@@ -1,0 +1,65 @@
+@page "/select-department"
+@inject AppState AppState
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject HttpClient Http
+
+<PageTitle>Vælg afdeling</PageTitle>
+
+<div class="dept-wrapper">
+    <div class="dept-card">
+        <h2 class="dept-title">Vælg afdeling</h2>
+        <p class="dept-subtitle">Denne session gælder for den valgte afdeling.</p>
+
+        @if (departments.Count == 0)
+        {
+            <p class="dept-empty">Ingen afdelinger fundet.</p>
+        }
+        else
+        {
+            <div class="dept-list">
+                @foreach (var dept in departments)
+                {
+                    <button class="dept-btn" @onclick="() => SelectAsync(dept)">
+                        @dept.Title
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<DepartmentOption> departments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AppState.PendingDepartments.Count > 0)
+        {
+            departments = AppState.PendingDepartments;
+        }
+        else
+        {
+            // Fallback for page refresh: re-fetch from API
+            try
+            {
+                departments = await Http.GetFromJsonAsync<List<DepartmentOption>>("api/auth/me/departments") ?? new();
+            }
+            catch { }
+        }
+
+        // Mirror the login-flow rule: skip the picker when there is only one option
+        if (departments.Count == 1)
+            await SelectAsync(departments[0]);
+    }
+
+    private async Task SelectAsync(DepartmentOption dept)
+    {
+        AppState.SelectedDepartmentId = dept.Id;
+        AppState.SelectedDepartmentName = dept.Title;
+        AppState.PendingDepartments = new();
+        await JS.InvokeVoidAsync("localStorage.setItem", "selectedDepartmentId", dept.Id.ToString());
+        await JS.InvokeVoidAsync("localStorage.setItem", "selectedDepartmentName", dept.Title);
+        Nav.NavigateTo("/");
+    }
+}

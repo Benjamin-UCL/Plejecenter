@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+@inject AppState AppState
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
 
 <div class="page">
     <div class="sidebar">
@@ -21,3 +25,31 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true) return;
+
+        if (AppState.SelectedDepartmentId != null) return;
+
+        // Attempt to restore department selection that was persisted before a page refresh
+        var rawId = await JS.InvokeAsync<string?>("localStorage.getItem", "selectedDepartmentId");
+        var name  = await JS.InvokeAsync<string?>("localStorage.getItem", "selectedDepartmentName");
+
+        if (rawId != null && int.TryParse(rawId, out var deptId))
+        {
+            AppState.SelectedDepartmentId = deptId;
+            AppState.SelectedDepartmentName = name;
+            return;
+        }
+
+        // Nothing in storage — send to picker unless already there
+        var path = new Uri(Nav.Uri).AbsolutePath;
+        if (path != "/select-department")
+            Nav.NavigateTo("/select-department");
+    }
+}

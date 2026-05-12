@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Plejecenter.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Plejecenter.Infrastructure.Data;
 namespace Plejecenter.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509194740_MakeResponsibilityOverlapOptional")]
+    partial class MakeResponsibilityOverlapOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -416,21 +419,6 @@ namespace Plejecenter.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("UserDepartments", b =>
-                {
-                    b.Property<int>("DepartmentsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DepartmentsId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserDepartments");
-                });
-
             modelBuilder.Entity("DepartmentReminder", b =>
                 {
                     b.HasOne("Plejecenter.Domain.Department", null)
@@ -557,21 +545,6 @@ namespace Plejecenter.Infrastructure.Migrations
                     b.HasOne("Plejecenter.Domain.Overlap", null)
                         .WithMany("Personel")
                         .HasForeignKey("OverlapId");
-                });
-
-            modelBuilder.Entity("UserDepartments", b =>
-                {
-                    b.HasOne("Plejecenter.Domain.Department", null)
-                        .WithMany()
-                        .HasForeignKey("DepartmentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Plejecenter.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Plejecenter.Domain.Overlap", b =>

@@ -17,7 +17,16 @@ public class AppDbContext : DbContext
     public DbSet<Reminder> Reminders => Set<Reminder>();
     public DbSet<Resident> Residents => Set<Resident>();
     public DbSet<Responsibility> Responsibilities => Set<Responsibility>();
+    public DbSet<ResponsibilityTemplate> ResponsibilityTemplates => Set<ResponsibilityTemplate>();
     public DbSet<ScheduleMedication> ScheduleMedications => Set<ScheduleMedication>();
     public DbSet<ShiftTask> ShiftTasks => Set<ShiftTask>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Departments)
+            .WithMany()
+            .UsingEntity("UserDepartments");
+    }
 }
 

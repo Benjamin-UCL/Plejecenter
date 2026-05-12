@@ -7,6 +7,7 @@ using Plejecenter.Application.Services.Employees;
 using Plejecenter.Infrastructure.Data;
 using Plejecenter.Infrastructure.Repositories;
 using Plejecenter.Application.Services.Residents;
+using Plejecenter.Application.Services.Responsibilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IResidentService, ResidentService>();
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<IResponsibilityService, ResponsibilityService>();
+builder.Services.AddScoped<IResponsibilityRepository, ResponsibilityRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -85,7 +88,8 @@ while (retries > 0)
         }
         if (!db.Users.Any())
         {
-            db.Users.Add(new User
+            var dept = db.Departments.First();
+            var user = new User
             {
                 FirstName = "Test",
                 LastName = "User",
@@ -93,8 +97,26 @@ while (retries > 0)
                 Password = BCrypt.Net.BCrypt.HashPassword("testpassword"),
                 Role = Plejecenter.Shared.Enums.UserRole.Administrator,
                 ActiveDeactive = true
-            });
+            };
+            user.Departments.Add(dept);
+            db.Users.Add(user);
             db.SaveChanges();
+        }
+        // Assign every department-less user to the first department.
+        // Handles users that existed before the UserDepartments table was added.
+        var firstDept = db.Departments.FirstOrDefault();
+        if (firstDept != null)
+        {
+            var unassigned = db.Users
+                .Include(u => u.Departments)
+                .Where(u => !u.Departments.Any())
+                .ToList();
+            if (unassigned.Any())
+            {
+                foreach (var u in unassigned)
+                    u.Departments.Add(firstDept);
+                db.SaveChanges();
+            }
         }
         break;
     }
