@@ -28,7 +28,8 @@ namespace Plejecenter.WebApp.Components.Pages
         //new fields and stuff for update above this
         private DateTime currentDate = DateTime.Now;
         private ResidentPicker.ResidentItem? selectedPickerResident;
-        private Resident? currentResident;
+        // private Resident? currentResident;
+        private ResidentAdminPageDTO.ResidentDto? selectedResidentDto;
         private List<ResidentPicker.ResidentItem> pickerResidents = new();
 
 
@@ -88,83 +89,72 @@ namespace Plejecenter.WebApp.Components.Pages
             // Potentially reload data for the new date here
         }
         // trigger når du klikker på en beboer i dropdownen, og den opdaterer currentResident som DetailCard'en viser
+        // private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
+        // {
+        //     selectedPickerResident = selected;
+            
+        //     if (selected == null)
+        //     {
+        //         currentResident = null;
+        //         return;
+        //     }
+
+        //     // 1. Find the DTO from our loaded list using the ID
+        //     var dto = residents.FirstOrDefault(r => r.Id == selected.Id);
+            
+        //     if (dto != null)
+        //     {
+        //         currentResident = new Resident 
+        //         {
+        //             Id = dto.Id,
+        //             FirstName = dto.FirstName,
+        //             LastName = dto.LastName,
+        //             Status = dto.Status,
+        //             RiskLevel = dto.RiskLevel,
+        //             ShoppingDay = dto.ShoppingDay,
+        //             ShoppingNotes = dto.ShoppingNotes,
+        //             PaymentNotes = dto.PaymentNotes,
+        //             Message = dto.Message,
+        //             PatientTimes = dto.PatientTimes.Select(pt => new PatientTime
+        //             {
+        //                 Id = pt.Id,
+        //                 DispensedAt = pt.DispensedAt,
+        //                 Note = pt.Note
+        //             }).ToList(),
+        //             ScheduleMedications = dto.ScheduleMedications.Select(sm => new ScheduleMedication
+        //             {
+        //                 Id = sm.Id,
+        //                 DispenseAt = sm.DispenseAt,
+        //                 IsGiven = sm.IsGiven
+        //             }).ToList()
+        //         };
+        //     }
+        // }   
+
         private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
         {
-            selectedPickerResident = selected;
-            
-            if (selected == null)
-            {
-                currentResident = null;
-                return;
-            }
+            // 1. Look into the 'residents' list (which contains the full DTOs from the API)
+            // 2. Find the one that matches the ID of the person clicked in the sidebar
+            var fullDto = residents.FirstOrDefault(r => r.Id == selected?.Id);
 
-            // 1. Find the DTO from our loaded list using the ID
-            var dto = residents.FirstOrDefault(r => r.Id == selected.Id);
-            
-            if (dto != null)
+            if (fullDto != null)
             {
-                currentResident = new Resident 
-                {
-                    Id = dto.Id,
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Status = dto.Status,
-                    RiskLevel = dto.RiskLevel,
-                    ShoppingDay = dto.ShoppingDay,
-                    ShoppingNotes = dto.ShoppingNotes,
-                    PaymentNotes = dto.PaymentNotes,
-                    Message = dto.Message,
-                    PatientTimes = dto.PatientTimes.Select(pt => new PatientTime
-                    {
-                        Id = pt.Id,
-                        DispensedAt = pt.DispensedAt,
-                        Note = pt.Note
-                    }).ToList(),
-                    ScheduleMedications = dto.ScheduleMedications.Select(sm => new ScheduleMedication
-                    {
-                        Id = sm.Id,
-                        DispenseAt = sm.DispenseAt,
-                        IsGiven = sm.IsGiven
-                    }).ToList()
-                };
+                // 3. Assign that DTO to our state variable
+                selectedResidentDto = fullDto;
             }
-        }   
-        //håndterer ændringer fra DetailCard'en, og opdaterer currentResident som dropdown'en og DetailCard'en viser
-        private void OnDetailChanged(Resident updatedResident)
-        {
-            currentResident = updatedResident;
-            // Here you could call an API save method to persist changes automatically
+            
+            StateHasChanged();
         }
 
 
 
-        // private async Task LoadResidentsAsync()
-        // {
-        //     //bruger helper igen isteden for at duplikere koden ovenpå
-        //     await SetAuthHeader();
-        //     // 3. Make the call
-        //     var resp = await http.GetAsync("api/residents");
+        //håndterer ændringer fra DetailCard'en, og opdaterer selectedResidentDto som dropdown'en og DetailCard'en viser
+        private void OnDetailChanged(ResidentAdminPageDTO.ResidentDto updatedResident)
+        {
+            selectedResidentDto = updatedResident;
+            // Here you could call an API save method to persist changes automatically
+        }
 
-        //     if (resp.StatusCode == HttpStatusCode.Unauthorized)
-        //     {
-        //         isUnauthorized = true;
-        //         await InvokeAsync(StateHasChanged);
-        //         return;
-        //     }
-
-        //     if (resp.IsSuccessStatusCode)
-        //     {
-        //         isUnauthorized = false; // Reset if it was previously unauthorized
-        //         residents = await resp.Content.ReadFromJsonAsync<List<ResidentAdminPageDTO.ResidentDto>>() ?? new();
-        //     }
-        //     else
-        //     {
-        //         // Handle other errors (404, 500, etc.)
-        //         Console.WriteLine($"Failed to load residents: {resp.StatusCode}");
-        //     }
-
-        //     await InvokeAsync(StateHasChanged);
-        // }
         #endregion
 
         private async Task HandleAddResidentAsync()
@@ -294,66 +284,42 @@ namespace Plejecenter.WebApp.Components.Pages
             }
         }
 
-
-        private async Task SaveResidentDetailsAsync(Resident updatedResident)
+        // Denne metode håndterer gem-forespørgslen fra DetailCard'en, og den opdaterer beboerens detaljer i API'et
+        private async Task SaveResidentDetailsAsync(ResidentAdminPageDTO.ResidentDto updatedResident)
         {
-        try 
+            await SetAuthHeader();
+
+            Console.WriteLine($"Attempting to save ID: {updatedResident.Id} for {updatedResident.FirstName}");
+
+            // We send the DTO directly to the API
+            var resp = await http.PutAsJsonAsync($"api/residents/{updatedResident.Id}", updatedResident);
+
+            if (resp.IsSuccessStatusCode)
             {
-                await SetAuthHeader();
+                await LoadResidentsAsync();
 
-                var request = new ResidentAdminPageDTO.UpdateResidentRequest
-                {
-                    Id = updatedResident.Id,
-                    FirstName = updatedResident.FirstName,
-                    LastName = updatedResident.LastName,
-                    Status = updatedResident.RiskLevel.ToString(),
-                    RiskLevel = updatedResident.RiskLevel,
-                    ShoppingDay = updatedResident.ShoppingDay ?? "",
-                    ShoppingNotes = updatedResident.ShoppingNotes ?? "",
-                    PaymentNotes = updatedResident.PaymentNotes ?? "",
-                    Message = updatedResident.Message ?? ""
-                };
-
-                var resp = await http.PutAsJsonAsync($"api/residents/{updatedResident.Id}", request);
-                
-                if (resp.IsSuccessStatusCode)
-                {
-                    await LoadResidentsAsync();
-                }
+                selectedResidentDto = residents.FirstOrDefault(r => r.Id == updatedResident.Id);
+                StateHasChanged();
+                Console.WriteLine("Save successful.");
             }
-            catch (Exception ex)
+            else
             {
-                // Now the site won't freeze! It just logs the error.
-                Console.WriteLine($"Critical error during save: {ex.Message}");
+                // Read the specific error message from the server to see WHY it failed
+                var errorContent = await resp.Content.ReadAsStringAsync();
+                Console.WriteLine($"SERVER REJECTED ID {updatedResident.Id}: {errorContent}");
             }
         }
 
         //metode til at håndterer PN tilføjelse
-        private async Task HandlePnAddedAsync(PatientTime newEntry)
+        private async Task HandlePnAddedAsync(ResidentAdminPageDTO.PatientTimeDto newEntry)
         {
-            if (currentResident == null) return;
-
+            if (selectedResidentDto == null) return;
             await SetAuthHeader();
-
-            // Now this URL will match the new method we added to the controller
-            var resp = await http.PostAsJsonAsync($"api/residents/{currentResident.Id}/patienttimes", newEntry);
-
+            var resp = await http.PostAsJsonAsync($"api/residents/{selectedResidentDto.Id}/patienttimes", newEntry);
             if (resp.IsSuccessStatusCode)
             {
-                // 1. Reload the master list from the API
-                await LoadResidentsAsync(); 
-                
-                // 2. IMPORTANT: Re-link currentResident to the updated DTO from the list
-                var updatedDto = residents.FirstOrDefault(r => r.Id == currentResident.Id);
-                if (updatedDto != null)
-                {
-                    // This triggers the DetailCard to re-render with the new data
-                    OnResidentSelected(pickerResidents.FirstOrDefault(p => p.Id == updatedDto.Id));
-                }
-            }
-            else
-            {
-                Console.WriteLine("Kunne ikke gemme PN tid.");
+                await LoadResidentsAsync();
+                selectedResidentDto = residents.FirstOrDefault(r => r.Id == selectedResidentDto.Id);
             }
         }
 
@@ -370,44 +336,54 @@ namespace Plejecenter.WebApp.Components.Pages
                 await LoadResidentsAsync();
                 
                 // Option B: Manually remove from local list for speed
-                currentResident.PatientTimes.RemoveAll(x => x.Id == ptId);
+                selectedResidentDto.PatientTimes.RemoveAll(x => x.Id == ptId);
                 StateHasChanged();
             }
         }
 
-        private async Task HandleMedicationToggledAsync(ScheduleMedication med)
+        private async Task HandleMedicationToggledAsync(ResidentAdminPageDTO.ScheduleMedicationDto medDto)
         {
-            await SetAuthHeader();
-            
-            // We can create a specific endpoint for this or reuse an update endpoint
-            var resp = await http.PutAsJsonAsync($"api/residents/medication/{med.Id}/toggle", med.IsGiven);
+            if (selectedResidentDto == null) return;
+                
+                await SetAuthHeader();
+                
+                // Notice we changed 'PutAsJsonAsync' to 'PutAsync' 
+                // and removed 'medDto' from the arguments because the server 
+                // handles the logic based only on the ID in the URL.
+                var resp = await http.PutAsync($"api/residents/medication/{medDto.Id}/toggle", null);
 
-            if (!resp.IsSuccessStatusCode)
-            {
-                // If it fails, flip it back in the UI so the user knows it didn't save
-                med.IsGiven = !med.IsGiven;
-                StateHasChanged();
-            }
+                if (!resp.IsSuccessStatusCode)
+                {
+                    // If the save fails (e.g., server down), refresh the list 
+                    // to reset the checkbox to its original state in the UI.
+                    await LoadResidentsAsync();
+                    Console.WriteLine("Kunne ikke gemme status.");
+                }
         }
 
-        private async Task HandleMedAddedAsync(DateTime time)
+        private async Task HandleMedAddedAsync(AddMedScheduleRequest request)
         {
-            if (currentResident == null) return;
+            if (selectedResidentDto == null) return;
                 await SetAuthHeader();
 
-                var resp = await http.PostAsJsonAsync($"api/residents/{currentResident.Id}/medication", time);
+                var resp = await http.PostAsJsonAsync($"api/residents/{selectedResidentDto.Id}/medication", request);
 
                 if (resp.IsSuccessStatusCode)
                 {
                     await LoadResidentsAsync(); // Fetch from DB
                     
                     // Re-assign the current resident to the one found in the new list
-                    var updated = residents.FirstOrDefault(r => r.Id == currentResident.Id);
+                    var updated = residents.FirstOrDefault(r => r.Id == selectedResidentDto.Id);
                     if (updated != null)
                     {
                         // This forces the DetailCard to see the new ScheduleMedications list
-                        OnResidentSelected(pickerResidents.FirstOrDefault(p => p.Id == updated.Id));
+                        // OnResidentSelected(pickerResidents.FirstOrDefault(p => p.Id == updated.Id));
+                        
+                        // We don't need to call the "Picker" logic here anymore. 
+                        // Just assign the updated DTO directly to our state variable.
+                        selectedResidentDto = updated;
                     }
+                    StateHasChanged();
                 }
                 else 
                 {

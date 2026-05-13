@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Plejecenter.Shared.DTOs.ResidentAdminPage;
 
+    public class AddMedScheduleRequest 
+    {
+    public DateTime Time { get; set; }
+    public int MedicationId { get; set; }
+    public string Dosage { get; set; }
+    }
+
 public class ResidentAdminPageDTO
 {
     public class PatientTimeDto
@@ -17,7 +24,16 @@ public class ResidentAdminPageDTO
         public int Id  { get; set; }
         public DateTime DispenseAt { get; set; }
         public bool IsGiven { get; set; }
+        public string MedicationName { get; set; } = string.Empty;
+        public string Dosage { get; set; } = string.Empty;
     }
+
+    public class MedicationDto
+    {
+        public int Id { get; set; }
+        public string PrepName { get; set; }
+    }
+
 
     public record ResidentDto(
         int Id,

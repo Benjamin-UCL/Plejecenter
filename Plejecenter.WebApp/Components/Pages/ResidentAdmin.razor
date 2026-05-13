@@ -29,13 +29,14 @@
 
         <!-- Main Card -->
         <section class="admin-main-card">
-            <DetailCard Resident="currentResident"
+            <DetailCard Resident="selectedResidentDto"
                         ResidentChanged="OnDetailChanged"
                         OnSaveRequested="SaveResidentDetailsAsync"
                         OnPnAdded="HandlePnAddedAsync"
                         OnPnDeleted="HandlePnDeletedAsync"
                         OnMedScheduleAdded="HandleMedAddedAsync"
                         OnMedScheduleDeleted="HandleMedDeletedAsync"
+                        OnMedicationToggled="HandleMedicationToggledAsync"
                         />
         </section>
 

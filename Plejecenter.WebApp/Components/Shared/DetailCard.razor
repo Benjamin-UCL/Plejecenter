@@ -52,24 +52,41 @@ else
 
             @if (isAddingMed)
             {
-                <div class="add-med-row" style="margin-bottom: 10px; display: flex; gap: 5px; align-items: center;">
-                    <input type="time" @bind="newMedTime" class="form-control-sm" />
-                    <button class="btn btn-success btn-sm" @onclick="SaveNewMedTime" type="button">Gem</button>
-                    <button class="btn btn-secondary btn-sm" @onclick="ToggleAddMedMode" type="button">Annuller</button>
+                <div class="add-med-row" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; background: #1e2633; padding: 10px; border-radius: 4px;">
+                    <!-- Time Input -->
+                    <input type="time" @bind="newMedTime" class="form-control-sm" style="width: 100px;" />
+
+                    <!-- Medication Dropdown -->
+                    <select @bind="selectedMedicationId" class="form-control-sm" style="min-width: 150px;">
+                        <option value="0">Vælg medicin...</option>
+                        @foreach (var med in availableMedications)
+                        {
+                            <option value="@med.Id">@med.PrepName</option>
+                        }
+                    </select>
+
+                    <!-- Dosage Input -->
+                    <input type="text" @bind="dosageInput" placeholder="Dosis (f.eks. 500mg)" class="form-control-sm" style="width: 150px;" />
+
+                    <!-- Actions -->
+                    <button class="btn btn-success btn-sm" @onclick="SaveNewMedTime">Gem</button>
+                    <button class="btn btn-secondary btn-sm" @onclick="ToggleAddMedMode">Annuller</button>
                 </div>
             }
 
             <div class="pill-grid">
                 <div class="section-label">Medicin (@Resident.ScheduleMedications.Count)</div>
-                @foreach (var med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
+                @foreach (Plejecenter.Shared.DTOs.ResidentAdminPage.ResidentAdminPageDTO.ScheduleMedicationDto med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
                 {
                     <label class="pill @(med.IsGiven ? "pill-checked" : "")">
                         <input type="checkbox"
                                 checked="@med.IsGiven"
                                 @onchange="() => OnMedGivenChanged(med)" />
-                        @med.DispenseAt.ToString("HH:mm")
                         
-                        @* Delete button for the schedule item *@
+                        @* The upgraded label text *@
+                        <span>@med.DispenseAt.ToString("HH:mm") - @med.MedicationName (@med.Dosage)</span>
+                        
+                        @* Your delete button with stopPropagation to avoid toggling the checkbox *@
                         <button class="pill-delete-btn" 
                                 @onclick="() => RequestDeleteMed(med.Id)" 
                                 @onclick:stopPropagation="true" 
@@ -141,7 +158,7 @@ else
                     <label>Handledag</label>
                     <div class="select-wrap">
                         <select value="@Resident.ShoppingDay"
-                                @onchange="e => Resident.ShoppingDay = e.Value?.ToString() ?? string.Empty">
+                                @onchange="@(e => OnFieldChanged("ShoppingDay", e.Value?.ToString()))">
                             <option value="">Dag</option>
                             <option value="Mandag">Mandag</option>
                             <option value="Tirsdag">Tirsdag</option>
@@ -153,7 +170,7 @@ else
                     <textarea class="message-area"
                               placeholder="Indkøbsliste eller noter"
                               value="@Resident.ShoppingNotes"
-                                  @onchange="e => Resident.ShoppingNotes = e.Value?.ToString() ?? string.Empty">
+                                  @onchange="@(e => OnFieldChanged("ShoppingNotes", e.Value?.ToString()))">
                     </textarea>
                     </div>
 
@@ -162,7 +179,7 @@ else
                         <textarea class="message-area"
                                   placeholder="Betalings information"
                                   value="@Resident.PaymentNotes"
-                                      @onchange="e => Resident.PaymentNotes = e.Value?.ToString() ?? string.Empty">
+                                      @onchange="@(e => OnFieldChanged("PaymentNotes", e.Value?.ToString()))">
                     </textarea>
                         </div>
 
@@ -175,7 +192,7 @@ else
                         <textarea class="message-area full-width"
                                   placeholder="Tilføj besked eller opgave…"
                                   value="@Resident.Message"
-                                      @onchange="e => Resident.Message = e.Value?.ToString() ?? string.Empty">
+                                      @onchange="@(e => OnFieldChanged("Message", e.Value?.ToString()))">
                 </textarea>
                         </div>
 

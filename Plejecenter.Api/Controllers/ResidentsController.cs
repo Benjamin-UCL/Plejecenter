@@ -24,22 +24,14 @@ public class ResidentsController : ControllerBase
         _db = db;
     }
 
-    // [HttpGet] // Get All
-    // public async Task<ActionResult<IEnumerable<Resident>>> GetAll()
-    // {
-    //     // You MUST use .Include() or the list will be empty every time you reload
-    //     return await _db.Residents
-    //         .Include(r => r.PatientTimes)
-    //         .Include(r => r.ScheduleMedications) // Do this for medications too
-    //         .ToListAsync();
-    // }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ResidentAdminPageDTO.ResidentDto>>> GetAll()
     {
         var residents = await _db.Residents
             .Include(r => r.PatientTimes)
             .Include(r => r.ScheduleMedications)
+                .ThenInclude(sm => sm.MedicationDosage)
+                    .ThenInclude(md => md.Medication)
             .ToListAsync();
 
         return residents.Select(r => new ResidentAdminPageDTO.ResidentDto(
@@ -61,11 +53,13 @@ public class ResidentsController : ControllerBase
                 Note = pt.Note
             }).ToList(),
             r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
-        {
-            Id = sm.Id,
-            DispenseAt = sm.DispenseAt,
-            IsGiven = sm.IsGiven
-        }).ToList()
+            {
+                Id = sm.Id,
+                DispenseAt = sm.DispenseAt,
+                IsGiven = sm.IsGiven,
+                MedicationName = sm.MedicationDosage?.Medication?.PrepName ?? "Ukendt Medicin",
+                Dosage = sm.MedicationDosage?.Dosage ?? "Ingen dosis"
+            }).ToList()
             
         )).ToList();
     }
@@ -83,16 +77,34 @@ public class ResidentsController : ControllerBase
         return resident;
     }
 
-    [HttpPut("{id}")] // Update
-    public async Task<IActionResult> Update(int id, Resident resident)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, ResidentAdminPageDTO.ResidentDto dto)
     {
-        if (id != resident.Id)
+        // 1. Check if IDs match
+        if (id != dto.Id)
         {
-            return BadRequest();
+            return BadRequest("ID mismatch between URL and body.");
         }
 
-        _db.Entry(resident).State = EntityState.Modified;
+        // 2. Find the existing resident in the database
+        var resident = await _db.Residents.FindAsync(id);
+        if (resident == null)
+        {
+            return NotFound();
+        }
 
+        // 3. Map values from DTO to the Database Entity
+        resident.FirstName = dto.FirstName;
+        resident.LastName = dto.LastName;
+        resident.Alias = dto.Alias;
+        resident.Status = dto.Status;
+        resident.RiskLevel = dto.RiskLevel;
+        resident.ShoppingDay = dto.ShoppingDay;
+        resident.ShoppingNotes = dto.ShoppingNotes;
+        resident.PaymentNotes = dto.PaymentNotes;
+        resident.Message = dto.Message;
+
+        // 4. Save changes
         try
         {
             await _db.SaveChangesAsync();
@@ -111,6 +123,22 @@ public class ResidentsController : ControllerBase
 
         return NoContent();
     }
+
+    // For toggling medication status (given/not given)
+    // finder pill i databasen, flipper IsGiven, og gemmer ændringen
+    [HttpPut("medication/{id}/toggle")]
+    public async Task<IActionResult> ToggleMedication(int id)
+    {
+        var item = await _db.ScheduleMedications.FindAsync(id);
+        if (item == null) return NotFound();
+
+        // Flip the status
+        item.IsGiven = !item.IsGiven;
+        
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 
     [HttpPost] // Create
     public async Task<ActionResult<Resident>> Create(ResidentAdminPageDTO.CreateResidentRequest request)
@@ -158,32 +186,40 @@ public class ResidentsController : ControllerBase
 
     //til Medcin håndtering i detailcard
     [HttpPost("{id}/medication")]
-    public async Task<IActionResult> AddScheduledMedication(int id, [FromBody] DateTime time)
+    public async Task<IActionResult> AddScheduledMedication(int id, [FromBody] AddMedScheduleRequest req)
     {
         var resident = await _db.Residents
             .Include(r => r.ScheduleMedications)
             .FirstOrDefaultAsync(r => r.Id == id);
             
-        if (resident == null) return NotFound();
+        if (resident == null) return NotFound("Resident ikke fundet.");
 
-        // GET A VALID DOSAGE: 
-        // We fetch the first available dosage from the database so the FK constraint is happy.
-        var defaultDosage = await _db.MedicationsDosages.FirstOrDefaultAsync();
+        // 1. Validate the Medication exists (Strict Approach)
+        var medication = await _db.Medications.FindAsync(req.MedicationId);
+        if (medication == null) return BadRequest("Medicin findes ikke i biblioteket.");
 
-        if (defaultDosage == null)
+        // 2. Search or Create the Dosage (The "Library" Logic)
+        var dosage = await _db.MedicationsDosages
+            .FirstOrDefaultAsync(d => EF.Property<int>(d, "MedicationId") == req.MedicationId && d.Dosage == req.Dosage);//because Medication is a navigation property, we use EF.Property to filter by the foreign key
+
+        if (dosage == null)
         {
-            var tempMed = new Medication { PrepName = "Test Medicin" };
-            defaultDosage = new MedicationDosage { Dosage = "1 stk", Medication = tempMed };
-            _db.MedicationsDosages.Add(defaultDosage);
+            dosage = new MedicationDosage 
+            { 
+                Dosage = req.Dosage, 
+                Medication = medication 
+            };
+            _db.MedicationsDosages.Add(dosage);
+            // We save here to ensure the dosage gets an ID
             await _db.SaveChangesAsync();
-            // return BadRequest("Ingen medicindoseringer fundet i databasen. Opret venligst en medicin først.");
         }
 
+        // 3. Create the Schedule link
         resident.ScheduleMedications.Add(new ScheduleMedication
         {
-            DispenseAt = time,
+            DispenseAt = req.Time,
             IsGiven = false,
-            MedicationDosage = defaultDosage // This satisfies the Foreign Key requirement!
+            MedicationDosage = dosage
         });
 
         await _db.SaveChangesAsync();

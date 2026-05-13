@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 namespace Plejecenter.Api.Controllers;
 
@@ -23,10 +24,16 @@ public class MedicationsController : ControllerBase
         _db = db;
     }
 
-    [HttpGet] // Get All
-    public async Task<ActionResult<IEnumerable<Medication>>> GetAll()
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ResidentAdminPageDTO.MedicationDto>>> GetMedications()
     {
-        return await _db.Medications.ToListAsync();
+        return await _db.Medications
+            .Select(m => new ResidentAdminPageDTO.MedicationDto 
+            { 
+                Id = m.Id, 
+                PrepName = m.PrepName 
+            })
+            .ToListAsync();
     }
 
     [HttpGet("{id}")] // Get by Id
