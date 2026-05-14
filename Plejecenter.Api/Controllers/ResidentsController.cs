@@ -237,16 +237,34 @@ public class ResidentsController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")] // Delete
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var resident = await _db.Residents.FindAsync(id);
+        // 1. Find the resident and include their related "child" data
+        var resident = await _db.Residents
+            .Include(r => r.PatientTimes)
+            .Include(r => r.ScheduleMedications)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
         if (resident == null)
         {
             return NotFound();
         }
 
+        // 2. Remove the related records first (The "Children")
+        if (resident.PatientTimes.Any())
+        {
+            _db.PatientTimes.RemoveRange(resident.PatientTimes);
+        }
+
+        if (resident.ScheduleMedications.Any())
+        {
+            _db.ScheduleMedications.RemoveRange(resident.ScheduleMedications);
+        }
+
+        // 3. Now delete the resident (The "Parent")
         _db.Residents.Remove(resident);
+
         await _db.SaveChangesAsync();
 
         return NoContent();

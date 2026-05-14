@@ -171,32 +171,49 @@ namespace Plejecenter.WebApp.Components.Pages
 
         private void HandleDeleteResidentAsync(int id)
         {
-            if (id <= 0 || selectedResidentDto == null) return;
-
-            // Just open the dialog. We don't call the API yet!
+            // We NEED to keep selectedResidentDto populated so the 
+            // Execute method knows WHO to delete later.
+            if (id <= 0) return;
+            
             showDeleteConfirm = true;
+            StateHasChanged();
         }
 
         private async Task ExecuteDeleteResident()
         {
-            if (selectedResidentDto == null) return;
+            Console.WriteLine("ExecuteDeleteResident triggered!");
+
+            if (selectedResidentDto == null) 
+            {
+                Console.WriteLine("DELETE FAILED: selectedResidentDto was null when confirming.");
+                return;
+            }
 
             try 
             {
                 await SetAuthHeader();
-                var resp = await http.DeleteAsync($"api/residents/{selectedResidentDto.Id}");
+                var idToDelete = selectedResidentDto.Id;
+                Console.WriteLine($"Sending DELETE request for ID: {idToDelete}");
+
+                var resp = await http.DeleteAsync($"api/residents/{idToDelete}");
 
                 if (resp.IsSuccessStatusCode)
                 {
-                    showDeleteConfirm = false; // Close the modal
-                    selectedResidentDto = null; // Clear selection
+                    Console.WriteLine("DELETE successful on server.");
+                    showDeleteConfirm = false; 
+                    selectedResidentDto = null; 
                     selectedPickerResident = null;
-                    await LoadResidentsAsync(); // Refresh the list
+                    await LoadResidentsAsync(); 
+                }
+                else 
+                {
+                    var error = await resp.Content.ReadAsStringAsync();
+                    Console.WriteLine($"DELETE failed on server. Status: {resp.StatusCode}, Error: {error}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Fejl ved sletning: {ex.Message}");
+                Console.WriteLine($"Exception during delete: {ex.Message}");
             }
         }
 
