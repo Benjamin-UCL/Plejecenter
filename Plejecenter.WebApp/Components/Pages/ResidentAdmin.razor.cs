@@ -32,6 +32,9 @@ namespace Plejecenter.WebApp.Components.Pages
         private ResidentAdminPageDTO.ResidentDto? selectedResidentDto;
         private List<ResidentPicker.ResidentItem> pickerResidents = new();
 
+        //for confirmdelete implementation
+        private bool showDeleteConfirm;
+
 
 
         #region Lifecycle
@@ -44,13 +47,6 @@ namespace Plejecenter.WebApp.Components.Pages
         {
             if (!firstRender || hasLoadedOnce) return;
             hasLoadedOnce = true;
-
-            // var token = await JS.InvokeAsync<string?>("localStorage.getItem", "authToken");
-            // if (!string.IsNullOrWhiteSpace(token))
-            // {
-            //     http.DefaultRequestHeaders.Authorization =
-            //         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            // }
 
             //bruger helper
             await SetAuthHeader();
@@ -88,54 +84,13 @@ namespace Plejecenter.WebApp.Components.Pages
             currentDate = newDate;
             // Potentially reload data for the new date here
         }
-        // trigger når du klikker på en beboer i dropdownen, og den opdaterer currentResident som DetailCard'en viser
-        // private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
-        // {
-        //     selectedPickerResident = selected;
-            
-        //     if (selected == null)
-        //     {
-        //         currentResident = null;
-        //         return;
-        //     }
 
-        //     // 1. Find the DTO from our loaded list using the ID
-        //     var dto = residents.FirstOrDefault(r => r.Id == selected.Id);
-            
-        //     if (dto != null)
-        //     {
-        //         currentResident = new Resident 
-        //         {
-        //             Id = dto.Id,
-        //             FirstName = dto.FirstName,
-        //             LastName = dto.LastName,
-        //             Status = dto.Status,
-        //             RiskLevel = dto.RiskLevel,
-        //             ShoppingDay = dto.ShoppingDay,
-        //             ShoppingNotes = dto.ShoppingNotes,
-        //             PaymentNotes = dto.PaymentNotes,
-        //             Message = dto.Message,
-        //             PatientTimes = dto.PatientTimes.Select(pt => new PatientTime
-        //             {
-        //                 Id = pt.Id,
-        //                 DispensedAt = pt.DispensedAt,
-        //                 Note = pt.Note
-        //             }).ToList(),
-        //             ScheduleMedications = dto.ScheduleMedications.Select(sm => new ScheduleMedication
-        //             {
-        //                 Id = sm.Id,
-        //                 DispenseAt = sm.DispenseAt,
-        //                 IsGiven = sm.IsGiven
-        //             }).ToList()
-        //         };
-        //     }
-        // }   
 
         private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
         {
             // Update the selected item from the picker
             selectedPickerResident = selected;
-            
+
             if (selected == null)
             {
                 selectedResidentDto = null;
@@ -190,27 +145,58 @@ namespace Plejecenter.WebApp.Components.Pages
             }
         }
 
-        private async Task HandleDeleteResidentAsync(int id)
-        {
+        // private async Task HandleDeleteResidentAsync(int id)
+        // {
 
-            // 1. Check right away. If no one is selected, just stop.
-            if (id <= 0) 
-            {
-                Console.WriteLine("Ingen beboer valgt til sletning.");
-                return;
-            }
-            // Simple browser popup check
-            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette denne beboer?");
+        //     // 1. Check right away. If no one is selected, just stop.
+        //     if (id <= 0) 
+        //     {
+        //         Console.WriteLine("Ingen beboer valgt til sletning.");
+        //         return;
+        //     }
+        //     // Simple browser popup check
+        //     bool confirmed = await JS.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette denne beboer?");
             
-            if (confirmed)
+        //     if (confirmed)
+        //     {
+        //         await SetAuthHeader();
+        //         var resp = await http.DeleteAsync($"api/residents/{id}");
+
+        //         if (resp.IsSuccessStatusCode)
+        //         {
+        //             await LoadResidentsAsync(); // Refresh list
+        //         }
+        //     }
+        // }
+
+        private void HandleDeleteResidentAsync(int id)
+        {
+            if (id <= 0 || selectedResidentDto == null) return;
+
+            // Just open the dialog. We don't call the API yet!
+            showDeleteConfirm = true;
+        }
+
+        private async Task ExecuteDeleteResident()
+        {
+            if (selectedResidentDto == null) return;
+
+            try 
             {
                 await SetAuthHeader();
-                var resp = await http.DeleteAsync($"api/residents/{id}");
+                var resp = await http.DeleteAsync($"api/residents/{selectedResidentDto.Id}");
 
                 if (resp.IsSuccessStatusCode)
                 {
-                    await LoadResidentsAsync(); // Refresh list
+                    showDeleteConfirm = false; // Close the modal
+                    selectedResidentDto = null; // Clear selection
+                    selectedPickerResident = null;
+                    await LoadResidentsAsync(); // Refresh the list
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fejl ved sletning: {ex.Message}");
             }
         }
 

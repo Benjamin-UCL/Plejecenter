@@ -89,3 +89,18 @@
         </div>
     </div>
 }
+
+<ConfirmDialog IsOpen="showDeleteConfirm"
+               IsOpenChanged="@(v => showDeleteConfirm = v)"
+               Title="Bekræft sletning"
+               ConfirmText="Slet beboer"
+               CancelText="Annuller"
+               ConfirmButtonClass="danger"
+               OnCancel="@(() => showDeleteConfirm = false)"
+               OnConfirm="ExecuteDeleteResident">
+    @if (selectedResidentDto != null)
+    {
+        <p>Er du sikker på, at du vil slette <strong>@selectedResidentDto.FirstName @selectedResidentDto.LastName</strong>?</p>
+        <p>Denne handling sletter @selectedResidentDto.FirstName fra systemet og kan ikke fortrydes.</p>
+    }
+</ConfirmDialog>
