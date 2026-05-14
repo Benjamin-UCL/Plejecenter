@@ -1,0 +1,41 @@
+﻿header {
+    flex: 0 0 60px; /* fixed height, change as needed */
+    background-color: red;
+}
+
+.main {
+    flex: 1; /* takes remaining space */
+    overflow: auto;
+}
+
+footer {
+    flex: 0 0 40px; /* fixed height, change as needed */
+    background-color: blue;
+}
+
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    align-content: flex-start;
+}
+
+.resident-card {
+    width: 250px;
+    height: 150px;
+    border-radius: 15px;
+    box-shadow: 5px 5px 5px #000;
+    border: 1px solid #661;
+    overflow: hidden;
+}
+
+.resident-card header{
+    padding: 5px 15px;
+    background-color: red;
+}
+
+.resident-card header h3 {
+        margin: 0;
+}

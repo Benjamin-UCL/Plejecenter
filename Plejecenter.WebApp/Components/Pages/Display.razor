@@ -1,0 +1,78 @@
+﻿@layout EmptyLayout
+@page "/Display"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Nav
+@inject AppState AppState
+@inject HttpClient Http
+@implements IAsyncDisposable
+@rendermode InteractiveServer
+
+<header>
+
+    <h3> @AppState.CurrentOverlap?.department?.Title <span>@time.ToString("dd/MM-yyyy HH:mm")</span> </h3>
+</header>
+
+<div class="main">
+
+    <div class="cards-container">
+        @foreach (Resident resident in residents)
+        {
+            <div class="resident-card">
+                <header>
+                    <h3>@resident.Alias</h3>
+                </header>
+                <p>@resident.Apartment</p>
+                <p>@resident.PaymentNotes</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+<footer>
+
+    <div>Rulletext</div>
+
+</footer>
+
+@code {
+
+    // private DateTime time = DateTime.Now;
+    private DateTime time = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "Central European Standard Time");
+    private Timer? timer;
+
+    public List<Resident> residents = new List<Resident>();
+
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        residents = await Http.GetFromJsonAsync<List<Resident>>("api/residents");
+
+        timer = new Timer(_ =>
+        {
+            time = DateTime.Now;
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("http://api:8080/hub")
+            .Build();
+
+        hubConnection.On<List<Resident>>("ReceiveResidents", (updatedResidents) =>
+        {
+            residents = updatedResidents;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        timer?.Dispose();
+        if (hubConnection is not null)
+            await hubConnection.DisposeAsync();
+    }
+}

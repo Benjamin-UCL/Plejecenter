@@ -1,14 +1,16 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Plejecenter.Application.Services.Residents;
+using Plejecenter.Domain;
+using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared.DTOs.ResidentAdminPage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Plejecenter.Domain;
-using Microsoft.AspNetCore.Authorization;
-using Plejecenter.Infrastructure.Data;
-using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 namespace Plejecenter.Api.Controllers;
 
@@ -18,10 +20,14 @@ namespace Plejecenter.Api.Controllers;
 public class ResidentsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IHubContext<DisplayHub> _hub;
+    private readonly IResidentService _residentService;
 
-    public ResidentsController(AppDbContext db)
+    public ResidentsController(AppDbContext db, IHubContext<DisplayHub> hub, IResidentService residentService)
     {
         _db = db;
+        _hub = hub;
+        _residentService = residentService;
     }
 
     [HttpGet] // Get All
@@ -56,6 +62,8 @@ public class ResidentsController : ControllerBase
         try
         {
             await _db.SaveChangesAsync();
+            var residents = await _residentService.GetAllForDisplayAsync();
+            await _hub.Clients.All.SendAsync("ReceiveResidents", residents);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -96,6 +104,8 @@ public class ResidentsController : ControllerBase
 
         _db.Residents.Add(newResident);
         await _db.SaveChangesAsync();
+        var residents = await _residentService.GetAllForDisplayAsync();
+        await _hub.Clients.All.SendAsync("ReceiveResidents", residents);
 
         return CreatedAtAction(nameof(GetById), new { id = newResident.Id }, newResident);
     }
@@ -111,6 +121,8 @@ public class ResidentsController : ControllerBase
 
         _db.Residents.Remove(resident);
         await _db.SaveChangesAsync();
+        var residents = await _residentService.GetAllForDisplayAsync();
+        await _hub.Clients.All.SendAsync("ReceiveResidents", residents);
 
         return NoContent();
     }

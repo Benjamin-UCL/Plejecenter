@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Plejecenter.Domain;
 using Plejecenter.Application.Services.Residents;
+using Plejecenter.Domain;
 using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared.DTOs.DisplayPage;
 using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 namespace Plejecenter.Infrastructure.Repositories;
@@ -13,6 +14,49 @@ public class ResidentRepository : IResidentRepository
     public ResidentRepository(AppDbContext db)
     {
         _db = db;
+    }
+
+    public async Task<List<ResidentDisplayDTO>> GetAllForDisplayAsync()
+    {
+        return await _db.Residents
+            .AsNoTracking()
+            .Include(r => r.ScheduleMedications)
+                .ThenInclude(sm => sm.MedicationDosage)
+                    .ThenInclude(md => md.Medication)
+            .Include(r => r.ScheduleMedications)
+                .ThenInclude(sm => sm.Days)
+            .Include(r => r.PatientTimes)
+                .ThenInclude(pt => pt.MedicationDosage)
+                    .ThenInclude(md => md.Medication)
+            .Select(r => new ResidentDisplayDTO
+            {
+                Id = r.Id,
+                FirstName = r.FirstName,
+                LastName = r.LastName,
+                Alias = r.Alias,
+                Status = r.Status,
+                Apartment = r.Apartment,
+                RiskLevel = r.RiskLevel,
+                ScheduleMedications = r.ScheduleMedications.Select(sm => new ScheduleMedicationDisplayDTO
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven,
+                    MedicationName = sm.MedicationDosage.Medication.PrepName,
+                    Dosage = sm.MedicationDosage.Dosage,
+                    Days = sm.Days
+                }).ToList(),
+                PatientTimes = r.PatientTimes.Select(pt => new PatientTimeDisplayDTO
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    TimeBetweenDosis = pt.TimeBetweenDosis,
+                    Note = pt.Note,
+                    MedicationName = pt.MedicationDosage.Medication.PrepName,
+                    Dosage = pt.MedicationDosage.Dosage
+                }).ToList()
+            })
+            .ToListAsync();
     }
 
     public async Task<List<ResidentAdminPageDTO.ResidentDto>> GetAllAsync(string? search)

@@ -1,3 +1,4 @@
+using Plejecenter.Shared.DTOs.DisplayPage;
 using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 namespace Plejecenter.Application.Services.Residents;
@@ -5,6 +6,7 @@ namespace Plejecenter.Application.Services.Residents;
 public interface IResidentService
 {
     Task<List<ResidentAdminPageDTO.ResidentDto>> GetAllAsync(string? search);
+    Task<List<ResidentDisplayDTO>> GetAllForDisplayAsync();
     Task<ResidentAdminPageDTO.ResidentDto?> GetByIdAsync(int id);
     Task<ResidentAdminPageDTO.ResidentDto> CreateAsync(ResidentAdminPageDTO.CreateResidentRequest req);
     Task<bool> UpdateAsync(int id, ResidentAdminPageDTO.UpdateResidentRequest req);

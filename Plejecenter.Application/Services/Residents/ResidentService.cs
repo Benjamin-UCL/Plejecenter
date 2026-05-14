@@ -1,3 +1,4 @@
+using Plejecenter.Shared.DTOs.DisplayPage;
 using Plejecenter.Shared.DTOs.ResidentAdminPage;
 
 
@@ -11,6 +12,8 @@ public class ResidentService: IResidentService
     {
         _repo = repo;
     }
+    public Task<List<ResidentDisplayDTO>> GetAllForDisplayAsync()
+    => _repo.GetAllForDisplayAsync();
 
     public Task<List<ResidentAdminPageDTO.ResidentDto>> GetAllAsync(string? search)
         => _repo.GetAllAsync(search);

@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -63,7 +63,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<DisplayHub>("/hub");
 // Under normale kørsler (Docker/dev) vil vi migrere og seed'e databasen.
 // Men i integration tests bytter vi DbContext ud (typisk til InMemory),
 // og der giver Migrate() ikke mening. Derfor springer vi dette over i "Testing".
