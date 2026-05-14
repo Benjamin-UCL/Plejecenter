@@ -364,3 +364,13 @@
 .pill-delete-btn:hover {
     color: #ff4d4d; /* Red on hover */
 }
+
+.btn-save-detail {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}

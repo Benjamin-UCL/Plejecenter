@@ -28,7 +28,7 @@ h2 {
     align-items: center;
 }
 
-.btn-add-resident {
+.btn-add {
     background-color: var(--primery-button);
     color: var(--inverted-text);
     border: none;
@@ -37,6 +37,27 @@ h2 {
     cursor: pointer;
     font-weight: bold;
 }
+
+.btn-edit {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-delete {
+    background-color: var(--status-high);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 
 /* Beboer oversigt */
 .residents-wrapper {
