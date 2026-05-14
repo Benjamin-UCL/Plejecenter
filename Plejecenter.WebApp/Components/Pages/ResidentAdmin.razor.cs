@@ -133,6 +133,15 @@ namespace Plejecenter.WebApp.Components.Pages
 
         private void OnResidentSelected(ResidentPicker.ResidentItem? selected)
         {
+            // Update the selected item from the picker
+            selectedPickerResident = selected;
+            
+            if (selected == null)
+            {
+                selectedResidentDto = null;
+                StateHasChanged();
+                return;
+            }
             // 1. Look into the 'residents' list (which contains the full DTOs from the API)
             // 2. Find the one that matches the ID of the person clicked in the sidebar
             var fullDto = residents.FirstOrDefault(r => r.Id == selected?.Id);
