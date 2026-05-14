@@ -19,12 +19,13 @@
             <div class="button-row">
                 <button class="btn-add" @onclick="OpenAddModal">Tilføj</button>
                 <button class="btn-edit" 
-                    disabled="@(selectedPickerResident == null)" 
-                    @onclick="() => HandleEditResidentAsync(selectedPickerResident!.Id)">Rediger</button>
+                    disabled="@(selectedResidentDto == null)" 
+                    @onclick="() => HandleEditResidentAsync(selectedResidentDto!.Id)">Rediger</button>
+
                 <button class="btn-delete" 
-                    disabled="@(selectedPickerResident == null)" 
-                    @onclick="() => HandleDeleteResidentAsync(selectedPickerResident!.Id)">Slet</button>
-            </div>
+                    disabled="@(selectedResidentDto == null)" 
+                    @onclick="() => HandleDeleteResidentAsync(selectedResidentDto!.Id)">Slet</button>
+                        </div>
         </aside>
 
         <!-- Main Card -->
