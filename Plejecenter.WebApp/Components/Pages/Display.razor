@@ -1,6 +1,7 @@
 ﻿@layout EmptyLayout
 @page "/Display"
 @using Microsoft.AspNetCore.SignalR.Client
+@using Plejecenter.Shared.DTOs.DisplayPage
 @inject NavigationManager Nav
 @inject AppState AppState
 @inject HttpClient Http
@@ -15,7 +16,7 @@
 <div class="main">
 
     <div class="cards-container">
-        @foreach (Resident resident in residents)
+        @foreach (ResidentDisplayDTO resident in residents)
         {
             <div class="resident-card">
                 <header>
@@ -41,13 +42,14 @@
     private DateTime time = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "Central European Standard Time");
     private Timer? timer;
 
-    public List<Resident> residents = new List<Resident>();
+    public List<ResidentDisplayDTO> residents = new();
+    // public List<Resident> residents = new List<Resident>();
 
     private HubConnection? hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
-        residents = await Http.GetFromJsonAsync<List<Resident>>("api/residents");
+        residents = await Http.GetFromJsonAsync<List<ResidentDisplayDTO>>("api/residents");
 
         timer = new Timer(_ =>
         {
@@ -60,7 +62,8 @@
             .WithUrl("http://api:8080/hub")
             .Build();
 
-        hubConnection.On<List<Resident>>("ReceiveResidents", (updatedResidents) =>
+
+        hubConnection.On<List<ResidentDisplayDTO>>("ReceiveResidents", (updatedResidents) =>
         {
             residents = updatedResidents;
             InvokeAsync(StateHasChanged);

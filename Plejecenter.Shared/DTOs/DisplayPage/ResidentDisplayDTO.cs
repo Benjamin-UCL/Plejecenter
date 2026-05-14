@@ -18,4 +18,10 @@ public class ResidentDisplayDTO
     public RiskIndicator RiskLevel { get; set; }
     public List<ScheduleMedicationDisplayDTO> ScheduleMedications { get; set; }
     public List<PatientTimeDisplayDTO> PatientTimes { get; set; }
+    public int SocialSecurityNumber { get; set; }
+    public string ShoppingDay { get; set; }
+    public string PaymentMethod { get; set; }
+    public string ShoppingNotes { get; set; }
+    public string PaymentNotes { get; set; }
+    public string Message { get; set; }
 }

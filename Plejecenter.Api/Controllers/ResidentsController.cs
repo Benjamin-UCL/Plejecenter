@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Plejecenter.Application.Services.Residents;
 using Plejecenter.Domain;
 using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared.DTOs.DisplayPage;
 using Plejecenter.Shared.DTOs.ResidentAdminPage;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,13 @@ public class ResidentsController : ControllerBase
         _db = db;
         _hub = hub;
         _residentService = residentService;
+    }
+
+    [HttpGet("display")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<ResidentDisplayDTO>>> GetAllForDisplay()
+    {
+        return await _residentService.GetAllForDisplayAsync();
     }
 
     [HttpGet] // Get All

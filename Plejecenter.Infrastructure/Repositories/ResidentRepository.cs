@@ -23,8 +23,6 @@ public class ResidentRepository : IResidentRepository
             .Include(r => r.ScheduleMedications)
                 .ThenInclude(sm => sm.MedicationDosage)
                     .ThenInclude(md => md.Medication)
-            .Include(r => r.ScheduleMedications)
-                .ThenInclude(sm => sm.Days)
             .Include(r => r.PatientTimes)
                 .ThenInclude(pt => pt.MedicationDosage)
                     .ThenInclude(md => md.Medication)
