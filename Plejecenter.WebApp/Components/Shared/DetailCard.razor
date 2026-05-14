@@ -29,21 +29,6 @@ else
         <div class="detail-body">
 
             <!-- MEDICIN -->
-            @* <div>
-                <div class="section-label">Medicin</div>
-                <div class="pill-grid">
-                    @foreach (var med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
-                    {                        
-                        <label class="pill @(med.IsGiven ? "pill-checked" : "")">
-                            <input type="checkbox"
-                                checked="@med.IsGiven"
-                                @onchange="() => OnMedGivenChanged(med)" />
-                            @med.DispenseAt.ToString("HH:mm")
-                        </label>
-                    }
-                </div>
-            </div> *@
-
         <div>
             <div class="section-header" style="display: flex; align-items: center; gap: 10px;">
                 <div class="section-label">Medicin</div>
@@ -102,38 +87,38 @@ else
             <div>
                 <div class="pn-row">
                     <div class="section-label">PN – TID</div>
-                    <div class="pn-actions">
+                        <div class="pn-actions">
+                            <div class="pn-time-pill-container">
+                                @* The Time Picker *@
+                                <div class="pn-time-input-wrapper">
+                                    <input type="time" 
+                                        value="@selectedPnTime.ToString("HH:mm")" 
+                                        @onchange="HandleTimeInputChange"
+                                        class="pn-time-input-inline" />
+                                    
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        width="16" height="16"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2"
+                                        class="clock-icon-overlay">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 6v6l4 2"></path>
+                                    </svg>
+                                </div>
 
-                        @if (NextPnTime.HasValue)
-                        {
-                            <div class="pn-time-pill">
-                                @NextPnTime.Value.ToString("HH:mm")
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     width="16" height="16"
-                                     fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 6v6l4 2"></path>
-                                </svg>
+                                @* The Add Button - Kept separate so the click is clean *@
+                                <button type="button"
+                                        class="icon-btn green"
+                                        @onclick="AddPnEntry"
+                                        @onclick:stopPropagation="true"
+                                        aria-label="Tilføj PN tid">
+                                    +
+                                </button>
                             </div>
-                        }
-
-                        <button class="icon-btn green"
-                                @onclick="AddPnEntry"
-                                aria-label="Tilføj PN tid">
-                            +
-                        </button>
-
-                    </div>
+                        </div>
                 </div>
 
                 <div class="pill-grid">
-                    @* @foreach (var pn in Resident.PatientTimes)
-                    {
-                        <label class="pill" title="@pn.Note">
-                            @pn.DispensedAt.ToString("HH:mm")
-                        </label>
-                    } *@
                     @foreach (var pn in Resident.PatientTimes.OrderByDescending(x => x.DispensedAt))
                     {
                         <div class="pill-wrapper"> 

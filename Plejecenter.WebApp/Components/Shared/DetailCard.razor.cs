@@ -34,6 +34,8 @@ namespace Plejecenter.WebApp.Components.Shared
         private List<ResidentAdminPageDTO.MedicationDto> availableMedications = new();
         private int selectedMedicationId;
         private string dosageInput = string.Empty;
+        //til at gemme den valgte PN-tid i en variabel, så vi kan bruge den i UI'et og i logikken for at tilføje en ny PN-tid
+        private DateTime selectedPnTime = DateTime.Now;
 
         private async Task OnMedGivenChanged(ResidentAdminPageDTO.ScheduleMedicationDto med)
         {
@@ -86,15 +88,31 @@ namespace Plejecenter.WebApp.Components.Shared
 
         private async Task AddPnEntry()
         {
+            if (Resident is null) return;
+
+            Console.WriteLine($"Plus button clicked! Adding time: {selectedPnTime.ToShortTimeString()}");
+
             var newEntry = new ResidentAdminPageDTO.PatientTimeDto
             {
-                DispensedAt = DateTime.Now,
-                Note = "Givet via Administration",
-                // MedicationDosage = ... (you might need to select this later)
+                // Use the time from the input picker instead of system 'Now'
+                DispensedAt = selectedPnTime,
+                Note = ""
             };
 
-            // Tell the parent to save this to the database
             await OnPnAdded.InvokeAsync(newEntry);
+        }
+
+        private void HandleTimeInputChange(ChangeEventArgs e)
+        {
+            if (DateTime.TryParse(e.Value?.ToString(), out var parsedTime))
+            {
+                // beholder år/måned/dag fra i dag, men opdaterer time/minut baseret på input
+                var today = DateTime.Today;
+                selectedPnTime = new DateTime(
+                    today.Year, today.Month, today.Day,
+                    parsedTime.Hour, parsedTime.Minute, 0
+                    );
+            }
         }
 
         //logik til at gemme ændringer i detaljekortet

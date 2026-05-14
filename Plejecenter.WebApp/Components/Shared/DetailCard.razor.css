@@ -191,14 +191,67 @@
     color: var(--primery-text);
 }
 
-    .icon-btn:hover {
-        background: var(--borders);
-    }
+.icon-btn:hover {
+    background: var(--borders);
+}
 
-    .icon-btn.green {
-        color: var(--status-low);
-        border-color: var(--status-low);
-    }
+.icon-btn.green {
+    color: var(--status-low);
+    border-color: var(--status-low);
+}
+
+ .pn-time-pill-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.pn-time-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    position: relative;
+    border: 1px solid #303d54;
+}
+
+.pn-time-input-inline {
+    background: transparent;
+    color: white;
+    border: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    width: 75px; /* Fixed width so it doesn't overlap the plus button */
+    outline: none;
+    cursor: pointer;
+    z-index: 2; /* Put the input above the icon */
+}
+
+/* Make sure the native icon is clickable but NOT expanding over the plus button */
+.pn-time-input-inline::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    z-index: 3;
+}
+
+.clock-icon-overlay {
+    margin-left: -5px;
+    pointer-events: none; /* Let clicks pass through to the input */
+    color: #a0aec0;
+}
+
+.icon-btn.green {
+    z-index: 10; /* Ensure button is on top of everything else */
+    position: relative;
+}   
+
+
 
 /* ── Bottom grid ────────────────────────────────────────── */
 .bottom-grid {
