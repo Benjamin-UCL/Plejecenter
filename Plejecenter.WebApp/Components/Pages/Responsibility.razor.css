@@ -172,6 +172,77 @@
         gap: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
     }
+
+    .add-form-schedule {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .schedule-fieldset {
+        border: 1px solid var(--borders);
+        border-radius: var(--mid-radius);
+        margin: 0;
+        padding: 12px 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .schedule-legend {
+        padding: 0 6px;
+        font-size: 0.95rem;
+        color: var(--primery-text);
+    }
+
+    .schedule-radio {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 8px 0;
+        cursor: pointer;
+        color: var(--primery-text);
+    }
+
+    .schedule-options {
+        margin: 0 0 12px 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .schedule-label {
+        font-size: 0.9rem;
+        color: var(--secondery-text);
+    }
+
+    .schedule-select,
+    .schedule-date {
+        max-width: 280px;
+        padding: 8px 10px;
+        border-radius: var(--mid-radius);
+        border: 1px solid var(--borders);
+        background-color: var(--canvas);
+        color: var(--primery-text);
+    }
+
+    .schedule-hint {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--secondery-text);
+    }
+
+    .shift-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+    }
+
+    .shift-check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        color: var(--primery-text);
+    }
 /* --- Gør at hele formen ikke bliver for bred på store skærme --- */
     .input-task {
         flex-grow: 1; 

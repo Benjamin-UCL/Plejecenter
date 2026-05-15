@@ -13,14 +13,17 @@ public class ResponsibilityDTO
      DateTime TaskDate,
      ShiftType Shift,
      int? UserId,
-     bool IsCompleted
+     bool IsCompleted,
+     ResponsibilityRecurrence Recurrence,
+     ShiftMask ApplicableShifts
  );
 
- //Opretning af opgave (template). Instance oprettes for den aktive TaskDate + Shift.
+ //Opretning af opgave (template). Instanser oprettes for StartDate og valgte vagter.
  public record CreateTemplateRequest(
      string Title,
      DateTime StartDate,
-     ShiftType Shift
+     ResponsibilityRecurrence Recurrence,
+     ShiftMask ApplicableShifts
  );
 
  //Opdatering af ansvar

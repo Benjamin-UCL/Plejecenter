@@ -16,8 +16,14 @@ public class ResponsibilityService : IResponsibilityService
     public Task<List<ResponsibilityDTO.ResponsibilityDto>> GetAllAsync(DateTime date, ShiftType shift)
         => _repo.GetAllAsync(date, shift);
 
-    public Task<ResponsibilityDTO.ResponsibilityDto> CreateTemplateAsync(ResponsibilityDTO.CreateTemplateRequest req)
-        => _repo.CreateTemplateAsync(req);
+    public async Task<ResponsibilityDTO.ResponsibilityDto> CreateTemplateAsync(ResponsibilityDTO.CreateTemplateRequest req)
+    {
+        var error = ResponsibilityTemplateValidator.ValidateCreate(req);
+        if (error is not null)
+            throw new ArgumentException(error);
+
+        return await _repo.CreateTemplateAsync(req);
+    }
 
     public Task<bool> UpdateAsync(int id, ResponsibilityDTO.UpdateResponsibilityRequest req)
         => _repo.UpdateAsync(id, req);

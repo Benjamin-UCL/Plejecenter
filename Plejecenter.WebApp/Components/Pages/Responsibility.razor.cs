@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Plejecenter.Shared;
 using Plejecenter.Shared.DTOs.EmployePage;
 using Plejecenter.Shared.DTOs.ResponsibilityPage;
 using Plejecenter.Shared.Enums;
@@ -28,6 +29,12 @@ namespace Plejecenter.WebApp.Components.Pages
 
         private bool isAddFormVisible = false;
         private string newTaskName = "";
+        private ResponsibilityRecurrence newRecurrence = ResponsibilityRecurrence.DailySingleShift;
+        private ShiftType newSingleShift = ShiftType.Morgen;
+        private DateTime newSingleDate = DateTime.Today;
+        private bool newShiftMorgen = true;
+        private bool newShiftEftermiddag;
+        private bool newShiftNat;
 
         private DateTime currentDate = DateTime.Now;
         private ShiftType activeShift = ShiftType.Morgen;
@@ -82,29 +89,85 @@ namespace Plejecenter.WebApp.Components.Pages
         private void ToggleAddForm()
         {
             isAddFormVisible = !isAddFormVisible;
+            if (isAddFormVisible)
+                ResetAddFormDefaults();
+        }
+
+        private void ResetAddFormDefaults()
+        {
+            newRecurrence = ResponsibilityRecurrence.DailySingleShift;
+            newSingleShift = activeShift;
+            newSingleDate = currentDate.Date;
+            newShiftMorgen = activeShift == ShiftType.Morgen;
+            newShiftEftermiddag = activeShift == ShiftType.Eftermiddag;
+            newShiftNat = activeShift == ShiftType.Nat;
         }
 
         private void CancelAdd()
         {
             isAddFormVisible = false;
             newTaskName = "";
+            ResetAddFormDefaults();
         }
+
+        private void OnRecurrenceChanged(ResponsibilityRecurrence recurrence)
+        {
+            newRecurrence = recurrence;
+            if (recurrence == ResponsibilityRecurrence.DailySingleShift)
+                newSingleShift = activeShift;
+        }
+
+        private ShiftMask BuildApplicableShifts()
+        {
+            return newRecurrence switch
+            {
+                ResponsibilityRecurrence.DailyAllShifts => ShiftMask.All,
+                ResponsibilityRecurrence.DailySingleShift => ResponsibilitySchedule.ToMask(newSingleShift),
+                ResponsibilityRecurrence.SingleDate => BuildSingleDateMask(),
+                _ => ShiftMask.None
+            };
+        }
+
+        private ShiftMask BuildSingleDateMask()
+        {
+            var mask = ShiftMask.None;
+            if (newShiftMorgen) mask |= ShiftMask.Morgen;
+            if (newShiftEftermiddag) mask |= ShiftMask.Eftermiddag;
+            if (newShiftNat) mask |= ShiftMask.Nat;
+            return mask;
+        }
+
+        private DateTime ResolveStartDate() =>
+            newRecurrence == ResponsibilityRecurrence.SingleDate
+                ? newSingleDate.Date
+                : currentDate.Date;
 
         private async Task SaveTask()
         {
             if (string.IsNullOrWhiteSpace(newTaskName))
                 return;
 
+            var mask = BuildApplicableShifts();
+            if (mask == ShiftMask.None)
+            {
+                loadError = "Vælg mindst ét vagtskift.";
+                return;
+            }
+
             var req = new ResponsibilityDTO.CreateTemplateRequest(
                 Title: newTaskName.Trim(),
-                StartDate: currentDate.Date,
-                Shift: activeShift);
+                StartDate: ResolveStartDate(),
+                Recurrence: newRecurrence,
+                ApplicableShifts: mask);
 
+            loadError = null;
             var resp = await http.PostAsJsonAsync(ResponsibilityApiBase, req);
-            resp.EnsureSuccessStatusCode();
+            if (!await HandleApiResponseAsync(resp, "Kunne ikke oprette ansvar"))
+                return;
 
             isAddFormVisible = false;
             newTaskName = "";
+            ResetAddFormDefaults();
             await LoadTasksForCurrentShiftAsync();
         }
         #endregion

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Plejecenter.Application.Services.Responsibilities;
 using Plejecenter.Domain;
 using Plejecenter.Infrastructure.Data;
+using Plejecenter.Shared;
 using Plejecenter.Shared.DTOs.ResponsibilityPage;
 using Plejecenter.Shared.Enums;
 
@@ -22,21 +23,26 @@ public class ResponsibilityRepository : IResponsibilityRepository
 
         var templates = await _db.ResponsibilityTemplates
             .AsNoTracking()
-            .Where(t => t.IsActive && t.StartDate.Date <= day)
+            .Where(t => t.IsActive)
             .OrderBy(t => t.Id)
             .ToListAsync();
+
+        var applicableTemplates = templates
+            .Where(t => ResponsibilitySchedule.TemplateAppliesTo(
+                day, shift, t.Recurrence, t.ApplicableShifts, t.StartDate))
+            .ToList();
 
         var existing = await _db.Responsibilities
             .Where(r => r.TaskDate == day && r.Shift == shift)
             .ToListAsync();
 
         var existingTemplateIds = existing.Select(e => e.TemplateId).ToHashSet();
-        if (templates.Count > 0)
+        if (applicableTemplates.Count > 0)
         {
             var nextSort = existing.Any() ? existing.Max(x => x.SortOrder) : 0;
             var toAdd = new List<Responsibility>();
 
-            foreach (var t in templates)
+            foreach (var t in applicableTemplates)
             {
                 if (existingTemplateIds.Contains(t.Id)) continue;
                 nextSort++;
@@ -61,64 +67,86 @@ public class ResponsibilityRepository : IResponsibilityRepository
             }
         }
 
+        var templateById = applicableTemplates.ToDictionary(t => t.Id);
+
         return existing
+            .Where(r => templateById.ContainsKey(r.TemplateId))
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Id)
-            .Select(r => new ResponsibilityDTO.ResponsibilityDto(
-                r.Id,
-                r.TemplateId,
-                r.Title,
-                r.SortOrder,
-                r.TaskDate,
-                r.Shift,
-                r.UserId,
-                r.IsCompleted
-            ))
+            .Select(r =>
+            {
+                var t = templateById[r.TemplateId];
+                return ToDto(r, t.Recurrence, t.ApplicableShifts);
+            })
             .ToList();
     }
 
     public async Task<ResponsibilityDTO.ResponsibilityDto> CreateTemplateAsync(ResponsibilityDTO.CreateTemplateRequest req)
     {
         var day = req.StartDate.Date;
+        var applicableShifts = ResponsibilitySchedule.ShiftsForCreate(req.Recurrence, req.ApplicableShifts);
 
         var template = new ResponsibilityTemplate
         {
-            Title = req.Title,
+            Title = req.Title.Trim(),
             StartDate = day,
-            IsActive = true
+            IsActive = true,
+            Recurrence = req.Recurrence,
+            ApplicableShifts = applicableShifts
         };
 
         _db.ResponsibilityTemplates.Add(template);
         await _db.SaveChangesAsync();
 
-        var nextSort = await _db.Responsibilities
-            .Where(r => r.TaskDate == day && r.Shift == req.Shift)
-            .Select(r => (int?)r.SortOrder)
-            .MaxAsync() ?? 0;
+        var shiftsToCreate = ResponsibilitySchedule.MaskToShifts(applicableShifts)
+            .Where(s => ResponsibilitySchedule.TemplateAppliesTo(
+                day, s, req.Recurrence, applicableShifts, day))
+            .ToList();
 
-        var entity = new Responsibility
+        Responsibility? firstCreated = null;
+
+        foreach (var shift in shiftsToCreate)
         {
-            TemplateId = template.Id,
-            Title = template.Title,
-            TaskDate = day,
-            Shift = req.Shift,
-            UserId = null,
-            IsCompleted = false,
-            SortOrder = nextSort + 1
-        };
+            var exists = await _db.Responsibilities.AnyAsync(r =>
+                r.TemplateId == template.Id && r.TaskDate == day && r.Shift == shift);
+            if (exists) continue;
 
-        _db.Responsibilities.Add(entity);
+            var nextSort = await _db.Responsibilities
+                .Where(r => r.TaskDate == day && r.Shift == shift)
+                .Select(r => (int?)r.SortOrder)
+                .MaxAsync() ?? 0;
+
+            var entity = new Responsibility
+            {
+                TemplateId = template.Id,
+                Title = template.Title,
+                TaskDate = day,
+                Shift = shift,
+                UserId = null,
+                IsCompleted = false,
+                SortOrder = nextSort + 1
+            };
+
+            _db.Responsibilities.Add(entity);
+            firstCreated ??= entity;
+        }
+
         await _db.SaveChangesAsync();
 
-        return new ResponsibilityDTO.ResponsibilityDto(
-            Id: entity.Id,
-            TemplateId: entity.TemplateId,
-            Title: entity.Title,
-            SortOrder: entity.SortOrder,
-            TaskDate: entity.TaskDate,
-            Shift: entity.Shift,
-            UserId: entity.UserId,
-            IsCompleted: entity.IsCompleted
-        );
+        if (firstCreated is null)
+        {
+            var fallbackShift = ResponsibilitySchedule.MaskToSingleShift(applicableShifts)
+                ?? ShiftType.Morgen;
+            firstCreated = new Responsibility
+            {
+                TemplateId = template.Id,
+                Title = template.Title,
+                TaskDate = day,
+                Shift = fallbackShift,
+                SortOrder = 0
+            };
+        }
+
+        return ToDto(firstCreated, template.Recurrence, template.ApplicableShifts);
     }
 
     public async Task<bool> UpdateAsync(int id, ResponsibilityDTO.UpdateResponsibilityRequest req)
@@ -176,5 +204,21 @@ public class ResponsibilityRepository : IResponsibilityRepository
         await _db.SaveChangesAsync();
         return true;
     }
-}
 
+    private static ResponsibilityDTO.ResponsibilityDto ToDto(
+        Responsibility r,
+        ResponsibilityRecurrence recurrence,
+        ShiftMask applicableShifts) =>
+        new(
+            r.Id,
+            r.TemplateId,
+            r.Title,
+            r.SortOrder,
+            r.TaskDate,
+            r.Shift,
+            r.UserId,
+            r.IsCompleted,
+            recurrence,
+            applicableShifts
+        );
+}

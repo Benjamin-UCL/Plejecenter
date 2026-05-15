@@ -33,8 +33,15 @@ public class ResponsibilitiesController : ControllerBase
     public async Task<ActionResult<ResponsibilityDTO.ResponsibilityDto>> Create(
         [FromBody] ResponsibilityDTO.CreateTemplateRequest req)
     {
-        var dto = await _responsibilities.CreateTemplateAsync(req);
-        return CreatedAtAction(nameof(GetAll), new { date = dto.TaskDate.Date, shift = dto.Shift }, dto);
+        try
+        {
+            var dto = await _responsibilities.CreateTemplateAsync(req);
+            return CreatedAtAction(nameof(GetAll), new { date = dto.TaskDate.Date, shift = dto.Shift }, dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // PUT /api/responsibilities/{id}

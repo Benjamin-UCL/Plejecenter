@@ -1,5 +1,6 @@
 ﻿@page "/responsibility"
 @using Plejecenter.Domain 
+@using Plejecenter.Shared.Enums
 @using Plejecenter.WebApp.Components.Shared
 
 <PageTitle>Ansvarsopgaver</PageTitle>
@@ -34,12 +35,70 @@ else
 @* --- Skriv opgave panel (toggle)--- *@
 @if (isAddFormVisible)
 {
-    <div class="add-form-container">
+    <div class="add-form-container add-form-schedule">
         <input type="text" class="input-task" placeholder="Skriv en ny opgave..." @bind="newTaskName" />
-        
+
+        <fieldset class="schedule-fieldset">
+            <legend class="schedule-legend">Hvornår skal opgaven vises?</legend>
+
+            <label class="schedule-radio">
+                <input type="radio" name="recurrence" checked="@(newRecurrence == ResponsibilityRecurrence.DailySingleShift)"
+                       @onchange="@(() => OnRecurrenceChanged(ResponsibilityRecurrence.DailySingleShift))" />
+                Hvert vagtskift, hver dag
+            </label>
+            @if (newRecurrence == ResponsibilityRecurrence.DailySingleShift)
+            {
+                <div class="schedule-options">
+                    <label class="schedule-label" for="newSingleShift">Vagt</label>
+                    <select id="newSingleShift" class="schedule-select" @bind="newSingleShift">
+                        <option value="@ShiftType.Morgen">Morgenvagt (07-15)</option>
+                        <option value="@ShiftType.Eftermiddag">Eftermiddagsvagt (15-23)</option>
+                        <option value="@ShiftType.Nat">Nattevagt (23-07)</option>
+                    </select>
+                    <p class="schedule-hint">Fra og med den dato du står på i kalenderen (@currentDate.ToString("dd-MM-yyyy")).</p>
+                </div>
+            }
+
+            <label class="schedule-radio">
+                <input type="radio" name="recurrence" checked="@(newRecurrence == ResponsibilityRecurrence.DailyAllShifts)"
+                       @onchange="@(() => OnRecurrenceChanged(ResponsibilityRecurrence.DailyAllShifts))" />
+                Alle vagter, hver dag
+            </label>
+            @if (newRecurrence == ResponsibilityRecurrence.DailyAllShifts)
+            {
+                <p class="schedule-hint schedule-options">Alle tre vagter hver dag fra @currentDate.ToString("dd-MM-yyyy").</p>
+            }
+
+            <label class="schedule-radio">
+                <input type="radio" name="recurrence" checked="@(newRecurrence == ResponsibilityRecurrence.SingleDate)"
+                       @onchange="@(() => OnRecurrenceChanged(ResponsibilityRecurrence.SingleDate))" />
+                Kun én dag
+            </label>
+            @if (newRecurrence == ResponsibilityRecurrence.SingleDate)
+            {
+                <div class="schedule-options">
+                    <label class="schedule-label" for="newSingleDate">Dato</label>
+                    <input id="newSingleDate" type="date" class="schedule-date" @bind="newSingleDate" @bind:format="yyyy-MM-dd" />
+
+                    <span class="schedule-label">Vagter den dag</span>
+                    <div class="shift-checkboxes">
+                        <label class="shift-check">
+                            <input type="checkbox" @bind="newShiftMorgen" /> Morgen
+                        </label>
+                        <label class="shift-check">
+                            <input type="checkbox" @bind="newShiftEftermiddag" /> Eftermiddag
+                        </label>
+                        <label class="shift-check">
+                            <input type="checkbox" @bind="newShiftNat" /> Nat
+                        </label>
+                    </div>
+                </div>
+            }
+        </fieldset>
+
         <div class="form-actions">
-            <button class="btn-save" @onclick="SaveTask">Tilføj</button>
-            <button class="btn-cancel" @onclick="CancelAdd">Annuller</button>
+            <button class="btn-save" type="button" @onclick="SaveTask">Tilføj</button>
+            <button class="btn-cancel" type="button" @onclick="CancelAdd">Annuller</button>
         </div>
     </div>
 }
