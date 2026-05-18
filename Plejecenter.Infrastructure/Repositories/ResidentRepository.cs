@@ -70,9 +70,33 @@ public class ResidentRepository : IResidentRepository
         }
 
         return await q
+            .AsSplitQuery() // siger til EF at hente collections i separate queries, hvilket kan forbedre performance når der er mange records
             .OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
             .Select(r => new ResidentAdminPageDTO.ResidentDto(
-                r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel))
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
+                }).ToList()
+                ))
             .ToListAsync();
     }
 
@@ -82,7 +106,30 @@ public class ResidentRepository : IResidentRepository
         return r is null
             ? null
             : new ResidentAdminPageDTO.ResidentDto(
-                r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel);
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
+                }).ToList()
+                );
     }
 
     public async Task<ResidentAdminPageDTO.ResidentDto> CreateAsync(ResidentAdminPageDTO.CreateResidentRequest req)
@@ -101,7 +148,30 @@ public class ResidentRepository : IResidentRepository
         await _db.SaveChangesAsync();
 
         return new ResidentAdminPageDTO.ResidentDto(
-            r.Id, r.FirstName, r.LastName, r.Alias, r.Apartment, r.Status, r.RiskLevel);
+                r.Id, 
+                r.FirstName, 
+                r.LastName, 
+                r.Alias, 
+                r.Apartment, 
+                r.Status, 
+                r.RiskLevel,
+                r.ShoppingDay,
+                r.ShoppingNotes,
+                r.PaymentNotes,
+                r.Message,
+                r.PatientTimes.Select(pt => new ResidentAdminPageDTO.PatientTimeDto
+                {
+                    Id = pt.Id,
+                    DispensedAt = pt.DispensedAt,
+                    Note = pt.Note
+                }).ToList(),
+                r.ScheduleMedications.Select(sm => new ResidentAdminPageDTO.ScheduleMedicationDto
+                {
+                    Id = sm.Id,
+                    DispenseAt = sm.DispenseAt,
+                    IsGiven = sm.IsGiven
+                }).ToList()                
+            );
     }
 
     public async Task<bool> UpdateAsync(int id, ResidentAdminPageDTO.UpdateResidentRequest req)

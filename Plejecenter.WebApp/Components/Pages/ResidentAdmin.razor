@@ -3,42 +3,52 @@
 @using Plejecenter.WebApp.Components.Shared
 
 
-<h2>Beboer Administration</h2>
+<div class="admin-main-wrapper">
+    <div class="top-nav">
+        <DateNavigator Date="currentDate" DateChanged="OnDateChanged" />
+    </div>
 
-<!-- Add Resident Section -->
-<div class="add-resident-section">
-  <div class="form-header">Tilføj Ny Beboer</div>
-  <div class="form-row">
-    <input type="text" placeholder="Fornavn" @bind="newResident.FirstName" />
-    <input type="text" placeholder="Efternavn" @bind="newResident.LastName" />
-    <input type="text" placeholder="Dashboard Initialer" @bind="newResident.Alias"/>
-    <button class="btn-add-resident" @onclick="HandleAddResidentAsync">Tilføj</button>
-  </div>
+    <div class="admin-content-grid">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <ResidentPicker 
+            Residents="pickerResidents"
+            SelectedResident="selectedPickerResident"
+            SelectedResidentChanged="OnResidentSelected" />
+
+            <div class="button-row">
+                <button class="btn-add" @onclick="OpenAddModal">Tilføj</button>
+                <button class="btn-edit" 
+                    disabled="@(selectedResidentDto == null)" 
+                    @onclick="() => HandleEditResidentAsync(selectedResidentDto!.Id)">Rediger</button>
+
+                <button class="btn-delete" 
+                    disabled="@(selectedResidentDto == null)" 
+                    @onclick="() => HandleDeleteResidentAsync(selectedResidentDto!.Id)">Slet</button>
+                        </div>
+        </aside>
+
+        <!-- Main Card -->
+        <section class="admin-main-card">
+            <DetailCard Resident="selectedResidentDto"
+                        ResidentChanged="OnDetailChanged"
+                        OnSaveRequested="SaveResidentDetailsAsync"
+                        OnPnAdded="HandlePnAddedAsync"
+                        OnPnDeleted="HandlePnDeletedAsync"
+                        OnMedScheduleAdded="HandleMedAddedAsync"
+                        OnMedScheduleDeleted="HandleMedDeletedAsync"
+                        OnMedicationToggled="HandleMedicationToggledAsync"
+                        />
+        </section>
+
+        <!-- Log -->
+        <aside class="admin-log">
+            <h3>Beboer log</h3>
+            ...
+        </aside>
+    </div>
 </div>
 
-<!-- Residents Grid -->
-<div class="residents-wrapper">
-  @* <span class="scroll-arrow up">&#8743;</span> *@
-
-  <div class="residents-grid" id="residentsGrid">
-
-
-    @foreach (var resident in residents)
-    {
-        <ResidentCard
-            ResidentId="@resident.Id"
-            FullName="@($"{resident.FirstName} {resident.LastName}")"
-            Initials="@(resident.FirstName[0] + ". " + resident.LastName[0] + ".")"
-		        MedicationTimes="@emptyList"
-            OnDelete="HandleDeleteResidentAsync"
-            OnEdit="HandleEditResidentAsync" />
-    }
-
-
-  </div><!-- end grid -->
-
- @*  <span class="scroll-arrow down">&#8744;</span> *@
-</div>
 
 @* --- MODALS BELOW --- *@
 
@@ -72,10 +82,25 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn-cancel" @onclick="() => showEditModal = false">Annuller</button>
-                    <button type="submit" class="btn-save">Gem Ændringer</button>
+                    <button type="submit" class="btn-add">Gem Ændringer</button>
+                    <button type="button" class="btn-delete" @onclick="() => showEditModal = false">Annuller</button>
                 </div>
             </EditForm>
         </div>
     </div>
 }
+
+<ConfirmDialog IsOpen="showDeleteConfirm"
+               IsOpenChanged="@(v => showDeleteConfirm = v)"
+               Title="Bekræft sletning"
+               ConfirmText="Slet beboer"
+               CancelText="Annuller"
+               ConfirmButtonClass="danger"
+               OnCancel="@(() => showDeleteConfirm = false)"
+               OnConfirm="ExecuteDeleteResident">
+    @if (selectedResidentDto != null)
+    {
+        <p>Er du sikker på, at du vil slette <strong>@selectedResidentDto.FirstName @selectedResidentDto.LastName</strong>?</p>
+        <p>Denne handling sletter @selectedResidentDto.FirstName fra systemet og kan ikke fortrydes.</p>
+    }
+</ConfirmDialog>

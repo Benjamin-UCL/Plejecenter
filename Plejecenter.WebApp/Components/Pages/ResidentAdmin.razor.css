@@ -28,7 +28,7 @@ h2 {
     align-items: center;
 }
 
-.btn-add-resident {
+.btn-add {
     background-color: var(--primery-button);
     color: var(--inverted-text);
     border: none;
@@ -37,6 +37,27 @@ h2 {
     cursor: pointer;
     font-weight: bold;
 }
+
+.btn-edit {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-delete {
+    background-color: var(--status-high);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 
 /* Beboer oversigt */
 .residents-wrapper {
@@ -104,4 +125,30 @@ h2 {
     color: #ff6b6b;
     font-size: 0.8rem;
     margin-top: 4px;
+}
+
+.admin-content-grid {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.admin-sidebar {
+    flex: 0 0 250px; /* Fixed width for the picker */
+}
+
+.admin-main-card {
+    flex: 1; /* Takes up all remaining space */
+    min-width: 400px;
+}
+
+.admin-log {
+    flex: 0 0 200px;
+}
+
+.button-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
 }

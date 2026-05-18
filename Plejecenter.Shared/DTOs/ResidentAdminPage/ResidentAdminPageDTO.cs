@@ -3,8 +3,38 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Plejecenter.Shared.DTOs.ResidentAdminPage;
 
+    public class AddMedScheduleRequest 
+    {
+    public DateTime Time { get; set; }
+    public int MedicationId { get; set; }
+    public string Dosage { get; set; }
+    }
+
 public class ResidentAdminPageDTO
 {
+    public class PatientTimeDto
+    {
+        public int Id { get; set; }
+        public DateTime DispensedAt { get; set; }
+        public string Note { get; set; } = string.Empty;
+    }
+
+    public class ScheduleMedicationDto
+    {
+        public int Id  { get; set; }
+        public DateTime DispenseAt { get; set; }
+        public bool IsGiven { get; set; }
+        public string MedicationName { get; set; } = string.Empty;
+        public string Dosage { get; set; } = string.Empty;
+    }
+
+    public class MedicationDto
+    {
+        public int Id { get; set; }
+        public string PrepName { get; set; }
+    }
+
+
     public record ResidentDto(
         int Id,
         string FirstName,
@@ -12,16 +42,17 @@ public class ResidentAdminPageDTO
         string Alias,
         int Apartment,
         string Status,
-        RiskIndicator RiskLevel
+        RiskIndicator RiskLevel,
+        string ShoppingDay,
+        string ShoppingNotes,
+        string PaymentNotes,
+        string Message,
+        List<PatientTimeDto> PatientTimes,
+        List<ScheduleMedicationDto> ScheduleMedications
     );
 
-    public class CreateResidentRequest{ //NOTE TO SELF: SHOULD I MOVE THIS OUTSIDE OF RESIDENTADMINPAGEDTO CLASS?
-        // string FirstName,
-        // string LastName,
-        // string Alias,
-        // int SocialSecurityNumber,
-        // int Apartment,
-        // string Status
+    public class CreateResidentRequest
+    {
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string Alias { get; set; } = "";
@@ -32,17 +63,6 @@ public class ResidentAdminPageDTO
 
     public class UpdateResidentRequest
     {
-        // string FirstName,
-        // string LastName,
-        // string Alias,
-        // int Apartment,
-        // string Status,
-        // string ShoppingDay,
-        // string PaymentMethod,
-        // string ShoppingNotes,
-        // string PaymentNotes,
-        // string Message,
-        // RiskIndicator RiskLevel
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Fornavn er påkrævet")]
@@ -67,6 +87,8 @@ public class ResidentAdminPageDTO
         public string PaymentNotes { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public RiskIndicator RiskLevel { get; set; }
+        public List<PatientTimeDto> PatientTimes { get; set; } = new();
+        public List<ScheduleMedicationDto> ScheduleMedications { get; set; } = new();
     }   
     public record SetResidentActiveRequest(string Status); 
 }

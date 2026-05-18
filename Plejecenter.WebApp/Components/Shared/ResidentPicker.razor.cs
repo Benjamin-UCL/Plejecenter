@@ -79,6 +79,7 @@ namespace Plejecenter.WebApp.Components.Shared
         /// </summary>
         public class ResidentItem
         {
+            public int Id { get; set; }
             public string Name { get; set; } = string.Empty;
             public RiskIndicator Status { get; set; } = RiskIndicator.Low;
         }

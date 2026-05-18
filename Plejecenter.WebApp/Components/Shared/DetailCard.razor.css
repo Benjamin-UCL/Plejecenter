@@ -54,15 +54,37 @@
     background: rgba(0, 0, 0, 0.2);
 }
 
+/* Base styles for the dropdown to ensure visibility */
 .kritisk-select {
-    font-size: 13px;
-    font-weight: 500;
-    background: transparent;
-    border: none;
-    outline: none;
+    color: black !important;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 2px 4px;
     cursor: pointer;
-    color: var(--inverted-text);
+    font-weight: bold;
 }
+
+/* Update the background based on the parent's StatusClass */
+.status-kritisk .kritisk-select {
+    background-color: var(--status-high) !important;
+}
+
+.status-ustabil .kritisk-select {
+    background-color: var(--status-mid) !important;
+}
+
+.status-stabil .kritisk-select {
+    background-color: var(--status-low) !important;
+}
+
+/* Style the options list to ensure text is visible on all systems */
+.kritisk-select option {
+    background-color: white; /* Keeps the dropdown list readable */
+    color: black;
+}
+
+
+
 
 /* ── Body ───────────────────────────────────────────────── */
 .detail-body {
@@ -169,14 +191,67 @@
     color: var(--primery-text);
 }
 
-    .icon-btn:hover {
-        background: var(--borders);
-    }
+.icon-btn:hover {
+    background: var(--borders);
+}
 
-    .icon-btn.green {
-        color: var(--status-low);
-        border-color: var(--status-low);
-    }
+.icon-btn.green {
+    color: var(--status-low);
+    border-color: var(--status-low);
+}
+
+ .pn-time-pill-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.pn-time-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    position: relative;
+    border: 1px solid #303d54;
+}
+
+.pn-time-input-inline {
+    background: transparent;
+    color: white;
+    border: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    width: 75px; /* Fixed width so it doesn't overlap the plus button */
+    outline: none;
+    cursor: pointer;
+    z-index: 2; /* Put the input above the icon */
+}
+
+/* Make sure the native icon is clickable but NOT expanding over the plus button */
+.pn-time-input-inline::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    z-index: 3;
+}
+
+.clock-icon-overlay {
+    margin-left: -5px;
+    pointer-events: none; /* Let clicks pass through to the input */
+    color: #a0aec0;
+}
+
+.icon-btn.green {
+    z-index: 10; /* Ensure button is on top of everything else */
+    position: relative;
+}   
+
+
 
 /* ── Bottom grid ────────────────────────────────────────── */
 .bottom-grid {
@@ -247,4 +322,55 @@
 .detail-card::-webkit-scrollbar-thumb {
     background: var(--borders);
     border-radius: 2px;
+}
+
+/* Target the select and the options inside the DetailCard */
+.detail-card .kritisk-select {
+    appearance: none; /* Removes default browser styling in some browsers */
+    background-color: var(--status-color) !important;
+    color: black !important;
+    border: 1px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+/* This fixes the "White background" in the actual list of options */
+.detail-card .kritisk-select option {
+    background-color: white; /* Keep list background clean */
+    color: black;            /* Force text to be visible */
+}
+
+/* If you want the list itself to match the header color: */
+/* .detail-card .kritisk-select option { background-color: var(--status-color); } */
+
+/* for new delete btn in PatientTimes */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    /* ... your existing pill styles ... */
+}
+
+.pill-delete-btn {
+    background: none;
+    border: none;
+    color: rgba(0,0,0,0.3);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.pill-delete-btn:hover {
+    color: #ff4d4d; /* Red on hover */
+}
+
+.btn-save-detail {
+    background-color: var(--primery-button);
+    color: var(--inverted-text);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
 }

@@ -16,7 +16,7 @@ else
             <h2>@Resident.FirstName @Resident.LastName</h2>
             <div class="kritisk-wrap @StatusClass">
                 <select class="kritisk-select"
-                        value="@Resident.Status"
+                        value="@Resident.RiskLevel"
                         @onchange="OnStatusChanged"
                         aria-label="Status">
                     <option value="@RiskIndicator.High">Kritisk</option>
@@ -29,20 +29,57 @@ else
         <div class="detail-body">
 
             <!-- MEDICIN -->
-            <div>
+        <div>
+            <div class="section-header" style="display: flex; align-items: center; gap: 10px;">
                 <div class="section-label">Medicin</div>
-                <div class="pill-grid">
-                    @foreach (var med in Resident.ScheduleMedications)
-                    {
-                        <label class="pill @(med.DispenseAt < DateTime.Now ? "pill-checked" : "")">
-                            <input type="checkbox"
-                                   checked="@(med.DispenseAt < DateTime.Now)"
-                                   @onchange="() => OnMedGivenChanged(med)" />
-                            @med.DispenseAt.ToString("HH:mm")
-                        </label>
-                    }
-                </div>
+                <button class="icon-btn small-green" @onclick="ToggleAddMedMode" type="button">+</button>
             </div>
+
+            @if (isAddingMed)
+            {
+                <div class="add-med-row" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; background: #1e2633; padding: 10px; border-radius: 4px;">
+                    <!-- Time Input -->
+                    <input type="time" @bind="newMedTime" class="form-control-sm" style="width: 100px;" />
+
+                    <!-- Medication Dropdown -->
+                    <select @bind="selectedMedicationId" class="form-control-sm" style="min-width: 150px;">
+                        <option value="0">Vælg medicin...</option>
+                        @foreach (var med in availableMedications)
+                        {
+                            <option value="@med.Id">@med.PrepName</option>
+                        }
+                    </select>
+
+                    <!-- Dosage Input -->
+                    <input type="text" @bind="dosageInput" placeholder="Dosis (f.eks. 500mg)" class="form-control-sm" style="width: 150px;" />
+
+                    <!-- Actions -->
+                    <button class="btn btn-success btn-sm" @onclick="SaveNewMedTime">Gem</button>
+                    <button class="btn btn-secondary btn-sm" @onclick="ToggleAddMedMode">Annuller</button>
+                </div>
+            }
+
+            <div class="pill-grid">
+                <div class="section-label">Medicin (@Resident.ScheduleMedications.Count)</div>
+                @foreach (Plejecenter.Shared.DTOs.ResidentAdminPage.ResidentAdminPageDTO.ScheduleMedicationDto med in Resident.ScheduleMedications.OrderBy(m => m.DispenseAt))
+                {
+                    <label class="pill @(med.IsGiven ? "pill-checked" : "")">
+                        <input type="checkbox"
+                                checked="@med.IsGiven"
+                                @onchange="() => OnMedGivenChanged(med)" />
+                        
+                        @* The upgraded label text *@
+                        <span>@med.DispenseAt.ToString("HH:mm") - @med.MedicationName (@med.Dosage)</span>
+                        
+                        @* Your delete button with stopPropagation to avoid toggling the checkbox *@
+                        <button class="pill-delete-btn" 
+                                @onclick="() => RequestDeleteMed(med.Id)" 
+                                @onclick:stopPropagation="true" 
+                                type="button">×</button>
+                    </label>
+                }
+            </div>
+        </div>           
 
             <hr class="section-divider" />
 
@@ -50,37 +87,49 @@ else
             <div>
                 <div class="pn-row">
                     <div class="section-label">PN – TID</div>
-                    <div class="pn-actions">
+                        <div class="pn-actions">
+                            <div class="pn-time-pill-container">
+                                @* The Time Picker *@
+                                <div class="pn-time-input-wrapper">
+                                    <input type="time" 
+                                        value="@selectedPnTime.ToString("HH:mm")" 
+                                        @onchange="HandleTimeInputChange"
+                                        class="pn-time-input-inline" />
+                                    
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        width="16" height="16"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2"
+                                        class="clock-icon-overlay">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 6v6l4 2"></path>
+                                    </svg>
+                                </div>
 
-                        @if (NextPnTime.HasValue)
-                        {
-                            <div class="pn-time-pill">
-                                @NextPnTime.Value.ToString("HH:mm")
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     width="16" height="16"
-                                     fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 6v6l4 2"></path>
-                                </svg>
+                                @* The Add Button - Kept separate so the click is clean *@
+                                <button type="button"
+                                        class="icon-btn green"
+                                        @onclick="AddPnEntry"
+                                        @onclick:stopPropagation="true"
+                                        aria-label="Tilføj PN tid">
+                                    +
+                                </button>
                             </div>
-                        }
-
-                        <button class="icon-btn green"
-                                @onclick="AddPnEntry"
-                                aria-label="Tilføj PN tid">
-                            +
-                        </button>
-
-                    </div>
+                        </div>
                 </div>
 
                 <div class="pill-grid">
-                    @foreach (var pn in Resident.PatientTimes)
+                    @foreach (var pn in Resident.PatientTimes.OrderByDescending(x => x.DispensedAt))
                     {
-                        <label class="pill" title="@pn.Note">
-                            @pn.DispensedAt.ToString("HH:mm")
-                        </label>
+                        <div class="pill-wrapper"> 
+                            <label class="pill" title="@pn.Note">
+                                @pn.DispensedAt.ToString("HH:mm")
+                                <button class="pill-delete-btn" 
+                                        @onclick="() => RequestDelete(pn.Id)" 
+                                        @onclick:stopPropagation="true"
+                                        type="button">×</button>
+                            </label>
+                        </div>
                     }
                 </div>
             </div>
@@ -94,7 +143,7 @@ else
                     <label>Handledag</label>
                     <div class="select-wrap">
                         <select value="@Resident.ShoppingDay"
-                                @onchange="e => Resident.ShoppingDay = e.Value?.ToString() ?? string.Empty">
+                                @onchange="@(e => OnFieldChanged("ShoppingDay", e.Value?.ToString()))">
                             <option value="">Dag</option>
                             <option value="Mandag">Mandag</option>
                             <option value="Tirsdag">Tirsdag</option>
@@ -106,7 +155,7 @@ else
                     <textarea class="message-area"
                               placeholder="Indkøbsliste eller noter"
                               value="@Resident.ShoppingNotes"
-                                  @onchange="e => Resident.ShoppingNotes = e.Value?.ToString() ?? string.Empty">
+                                  @onchange="@(e => OnFieldChanged("ShoppingNotes", e.Value?.ToString()))">
                     </textarea>
                     </div>
 
@@ -115,7 +164,7 @@ else
                         <textarea class="message-area"
                                   placeholder="Betalings information"
                                   value="@Resident.PaymentNotes"
-                                      @onchange="e => Resident.PaymentNotes = e.Value?.ToString() ?? string.Empty">
+                                      @onchange="@(e => OnFieldChanged("PaymentNotes", e.Value?.ToString()))">
                     </textarea>
                         </div>
 
@@ -128,11 +177,21 @@ else
                         <textarea class="message-area full-width"
                                   placeholder="Tilføj besked eller opgave…"
                                   value="@Resident.Message"
-                                      @onchange="e => Resident.Message = e.Value?.ToString() ?? string.Empty">
+                                      @onchange="@(e => OnFieldChanged("Message", e.Value?.ToString()))">
                 </textarea>
                         </div>
 
-                    </div>
+        </div>
 
-                </div>
-            }
+        <div class="detail-body">
+            @* ... all your existing sections ... *@
+
+            <div class="detail-actions">
+                <button class="btn-save-detail" @onclick="HandleSaveClick">
+                    Gem ændringer
+                </button>
+            </div>
+        </div>
+
+    </div>
+}
